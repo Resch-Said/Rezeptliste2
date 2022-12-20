@@ -15,7 +15,6 @@ interface RezeptDao {
     fun getByName(name: String): Rezept
 
 
-
     @Update
     fun updateRezept(rezept: Rezept)
 
