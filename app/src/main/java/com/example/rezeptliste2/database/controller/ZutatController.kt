@@ -13,16 +13,25 @@ class ZutatController(context: Context) {
         return zutatDao.getAllAvailable(true)
     }
 
+    fun setAvailable(newIngredient: String, available: Boolean) {
+
+        val zutat = zutatDao.getByName(newIngredient)
+        zutatDao.setAvailable(zutat.z_id, available)
+
+        if (available) {
+            zutatDao.setOrderID(zutat.z_id, zutatDao.getLastOrderID() + 1)
+        }
+    }
+
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RezeptDao
     private var db: Database
 
     init {
-        this.db = Room.databaseBuilder(
-            context,
-            Database::class.java, "Rezeptliste.db"
-        ).createFromAsset("Database/Rezeptliste.db").allowMainThreadQueries().build()
+        this.db = Room.databaseBuilder(context, Database::class.java, "Rezeptliste.db")
+            .createFromAsset("Database/Rezeptliste.db").allowMainThreadQueries().build()
         rezeptDao = db.rezeptDao()
         zutatDao = db.zutatDao()
         rezeptZutatDao = db.rezeptZutatDao()

@@ -1,15 +1,24 @@
 package com.example.rezeptliste2
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.TextField
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.rezeptliste2.database.controller.ZutatController
 
@@ -17,21 +26,61 @@ import com.example.rezeptliste2.database.controller.ZutatController
 fun ComposeIngredientList() {
 
     val zutatController = ZutatController(LocalContext.current)
-    val zutaten = zutatController.getAllAvailable()
+    val focusManager = LocalFocusManager.current
+    val trashIconRessource = R.drawable.ic_baseline_delete_24
+
+    var zutaten by remember { mutableStateOf(zutatController.getAllAvailable()) }
+    var addNewIngredient by remember { mutableStateOf(false) }
+    var newIngredient by remember {
+        mutableStateOf("")
+    }
 
     Column {
+
         LazyColumn {
             items(zutaten) { zutat ->
-                Text(text = " - ${zutat.name}")
+                Row {
+                    Text(text = " - ${zutat.name}")
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End) {
+                        Image(painter = painterResource(id = trashIconRessource),
+                            modifier = Modifier.clickable {
+                                zutatController.setAvailable(zutat.name, false)
+                                zutaten = zutatController.getAllAvailable()
+                            },
+                            contentDescription = "Delete Ingredient")
+                    }
+                }
+                Divider(thickness = 1.dp, color = Color.Black)
             }
         }
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 6.dp),
-            horizontalAlignment = Alignment.End) {
-            ComposeAddButton(onClick = {
-                // TODO: Add new ingredient
-            })
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+
+            if (addNewIngredient) {
+                TextField(value = newIngredient,
+                    onValueChange = {
+                        newIngredient = it
+                    },
+                    label = { Text(text = "Enter New Ingredient") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        zutatController.setAvailable(newIngredient, true)
+                        zutaten = zutatController.getAllAvailable()
+                        newIngredient = ""
+                        addNewIngredient = false
+                    }),
+                    modifier = Modifier.padding(16.dp))
+            }
+
+            ComposeAddButton(modifier = Modifier
+                .padding(horizontal = 6.dp)
+                .align(Alignment.End),
+                onClick = {
+                    addNewIngredient = true;
+                })
         }
     }
 }

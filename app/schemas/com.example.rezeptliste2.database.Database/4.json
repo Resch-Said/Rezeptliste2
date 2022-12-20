@@ -1,0 +1,163 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "37c5eb94911702660c6f511a42b1d864",
+    "entities": [
+      {
+        "tableName": "Rezept",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`r_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dauer` INTEGER, `zubereitung` TEXT, `bild` BLOB)",
+        "fields": [
+          {
+            "fieldPath": "r_id",
+            "columnName": "r_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dauer",
+            "columnName": "dauer",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "zubereitung",
+            "columnName": "zubereitung",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bild",
+            "columnName": "bild",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "r_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Zutat",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`z_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `isAvailable` INTEGER, `orderID` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "z_id",
+            "columnName": "z_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isAvailable",
+            "columnName": "isAvailable",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "orderID",
+            "columnName": "orderID",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "z_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RezeptZutat",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`r_id` INTEGER NOT NULL, `z_id` INTEGER NOT NULL, `menge` TEXT, PRIMARY KEY(`r_id`, `z_id`), FOREIGN KEY(`r_id`) REFERENCES `Rezept`(`r_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`z_id`) REFERENCES `Zutat`(`z_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "r_id",
+            "columnName": "r_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "z_id",
+            "columnName": "z_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "menge",
+            "columnName": "menge",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "r_id",
+            "z_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_RezeptZutat_z_id_r_id",
+            "unique": false,
+            "columnNames": [
+              "z_id",
+              "r_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RezeptZutat_z_id_r_id` ON `${TABLE_NAME}` (`z_id`, `r_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Rezept",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "r_id"
+            ],
+            "referencedColumns": [
+              "r_id"
+            ]
+          },
+          {
+            "table": "Zutat",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "z_id"
+            ],
+            "referencedColumns": [
+              "z_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '37c5eb94911702660c6f511a42b1d864')"
+    ]
+  }
+}
