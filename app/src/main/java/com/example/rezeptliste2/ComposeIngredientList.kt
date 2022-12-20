@@ -10,20 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rezeptliste2.database.controller.ZutatController
-import com.example.rezeptliste2.ui.theme.Rezeptliste2Theme
 
 @Composable
 fun ComposeIngredientList() {
 
     val zutatController = ZutatController(LocalContext.current)
-
-
     val zutaten = zutatController.getAllAvailable()
-
-    val ingredients = listOf("Eier", "Mehl", "Milch", "Zucker")
 
     Column {
         LazyColumn {
@@ -35,16 +29,9 @@ fun ComposeIngredientList() {
             .fillMaxWidth()
             .padding(horizontal = 6.dp),
             horizontalAlignment = Alignment.End) {
-            ComposeAddButton()
+            ComposeAddButton(onClick = {
+                // TODO: Add new ingredient
+            })
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun IngredientListPreview() {
-    Rezeptliste2Theme {
-        App()
     }
 }

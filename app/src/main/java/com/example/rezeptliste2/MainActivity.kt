@@ -48,11 +48,9 @@ fun App() {
 }
 
 @Composable
-fun ComposeAddButton() {
+fun ComposeAddButton(onClick: () -> Unit) {
 
-    Button(onClick = {
-        /*TODO*/
-    }, shape = RoundedCornerShape(10.dp)) {
+    Button(onClick = onClick, shape = RoundedCornerShape(10.dp)) {
         Text(text = "+")
     }
 }
