@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class Rezept(
     @PrimaryKey(autoGenerate = true) val r_id: Int,
     val name: String,
-    val dauer: String?,
+    val dauer: Int?,
     val zubereitung: String?,
-    val bild: Bitmap?,
+    val bild: ByteArray?,
 )

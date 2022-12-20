@@ -17,7 +17,7 @@ class RezeptZutatController(context: Context) {
         this.db = Room.databaseBuilder(
             context,
             Database::class.java, "Rezeptliste"
-        ).createFromAsset("Database/Rezeptliste.db").build()
+        ).createFromAsset("Database/Rezeptliste.db").allowMainThreadQueries().build()
         rezeptDao = db.rezeptDao()
         zutatDao = db.zutatDao()
         rezeptZutatDao = db.rezeptZutatDao()
