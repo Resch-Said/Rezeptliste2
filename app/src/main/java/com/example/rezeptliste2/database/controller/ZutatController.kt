@@ -9,13 +9,14 @@ import com.example.rezeptliste2.database.dao.ZutatDao
 import com.example.rezeptliste2.database.dto.Zutat
 
 class ZutatController(context: Context) {
-    fun getAllAvailable(): List<Zutat> {
-        return zutatDao.getAllAvailable(true)
+    fun getAllAvailable(isAvailable: Boolean): List<Zutat> {
+        return zutatDao.getAllAvailable(isAvailable)
     }
 
-    fun setAvailable(newIngredient: String, available: Boolean) {
 
-        val zutat = zutatDao.getByName(newIngredient)
+    fun setAvailable(ingredient: String, available: Boolean) {
+
+        val zutat = zutatDao.getByName(ingredient)
         zutatDao.setAvailable(zutat.z_id, available)
 
         if (available) {
@@ -23,6 +24,9 @@ class ZutatController(context: Context) {
         }
     }
 
+    fun getByName(ingredient: String): Zutat {
+        return zutatDao.getByName(ingredient)
+    }
 
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao

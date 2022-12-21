@@ -35,7 +35,8 @@ fun ComposeIngredientList() {
     val trashIconRessource = R.drawable.ic_baseline_delete_24
     val focusRequester = remember { FocusRequester() }
 
-    var zutaten by remember { mutableStateOf(zutatController.getAllAvailable()) }
+    var zutatenFiltered by remember { mutableStateOf(zutatController.getAllAvailable(false)) }
+    var zutaten by remember { mutableStateOf(zutatController.getAllAvailable(true)) }
     var addNewIngredient by remember { mutableStateOf(false) }
     var newIngredient by remember {
         mutableStateOf("")
@@ -44,6 +45,7 @@ fun ComposeIngredientList() {
     Column(modifier = Modifier.pointerInput(Unit) {
         detectTapGestures(onTap = {
             focusManager.clearFocus()
+            addNewIngredient = false
         })
     }) {
 
@@ -56,7 +58,9 @@ fun ComposeIngredientList() {
                         Image(painter = painterResource(id = trashIconRessource),
                             modifier = Modifier.clickable {
                                 zutatController.setAvailable(zutat.name, false)
-                                zutaten = zutatController.getAllAvailable()
+                                zutaten = zutatController.getAllAvailable(true)
+                                zutatenFiltered = zutatController.getAllAvailable(false)
+                                    .filter { zutat -> zutat.name.contains(newIngredient, true) }
                             },
                             contentDescription = "Delete Ingredient")
                     }
@@ -64,39 +68,72 @@ fun ComposeIngredientList() {
                 Divider(thickness = 1.dp, color = Color.Black)
             }
         }
-        Column(modifier = Modifier.fillMaxWidth()) {
-            if (addNewIngredient) {
+        if (addNewIngredient) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)) {
+
                 TextField(value = newIngredient,
                     onValueChange = {
                         newIngredient = it
+                        zutatenFiltered = zutatController.getAllAvailable(false)
+                            .filter { zutat -> zutat.name.contains(newIngredient, true) }
                     },
                     label = { Text(text = "Enter New Ingredient") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
-                        zutatController.setAvailable(newIngredient, true)
-                        zutaten = zutatController.getAllAvailable()
+
+                        if (zutatController.getByName(newIngredient) != null) {
+                            zutatController.setAvailable(newIngredient, true)
+                            zutaten = zutatController.getAllAvailable(true)
+                        }
                         newIngredient = ""
+
+                        zutatenFiltered = zutatController.getAllAvailable(false)
+                            .filter { zutat -> zutat.name.contains(newIngredient, true) }
+
                         addNewIngredient = false
                     }),
                     modifier = Modifier
                         .padding(16.dp)
                         .focusRequester(focusRequester))
 
+                if (zutatenFiltered.isNotEmpty()) {
+                    LazyColumn() {
+                        items(zutatenFiltered) { zutat ->
+                            Row(modifier = Modifier.clickable(onClick = {
+                                focusManager.clearFocus()
+                                zutatController.setAvailable(zutat.name, true)
+                                zutaten = zutatController.getAllAvailable(true)
+                                newIngredient = ""
+                                addNewIngredient = false
+                                zutatenFiltered = zutatController.getAllAvailable(false)
+                                    .filter { zutat -> zutat.name.contains(newIngredient, true) }
+                            })) {
+                                Text(text = " - ${zutat.name}")
+                            }
+                            Divider(thickness = 1.dp, color = Color.Black)
+                        }
+                    }
+                } else {
+                    Text(text = "No Ingredient found", modifier = Modifier.padding(start = 16.dp))
+                }
+
                 LaunchedEffect(Unit) {
                     focusRequester.requestFocus()
                 }
             }
-
-            ComposeAddButton(modifier = Modifier
-                .padding(horizontal = 6.dp)
-                .align(Alignment.End),
-                onClick = {
-                    addNewIngredient = true;
-                    focusManager.moveFocus(FocusDirection.Down)
-                })
         }
+
+        ComposeAddButton(modifier = Modifier
+            .padding(horizontal = 6.dp)
+            .align(Alignment.End),
+            onClick = {
+                addNewIngredient = true;
+                focusManager.moveFocus(FocusDirection.Down)
+            })
 
 
     }
