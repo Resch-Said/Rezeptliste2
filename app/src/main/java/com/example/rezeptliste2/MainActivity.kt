@@ -38,7 +38,7 @@ fun App() {
 
         when (selectedTabItem) {
             0 -> {
-                ComposeIngredientList()
+                ComposeIngredientTab()
             }
             1 -> {
                 ComposeCookingRecipeList()

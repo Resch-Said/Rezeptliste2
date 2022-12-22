@@ -1,0 +1,173 @@
+package com.example.rezeptliste2
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import com.example.rezeptliste2.database.controller.IngredientController
+import com.example.rezeptliste2.database.dto.Zutat
+
+
+@Composable
+fun ComposeIngredientList(
+    modifier: Modifier = Modifier,
+    ingredients: List<Zutat>,
+    showTrashIcon: Boolean = false,
+    onIngredientClicked: (Zutat) -> Unit = {},
+    onTrashIconClicked: (Zutat) -> Unit = {},
+    errorMessage: String = "No Ingredient found",
+) {
+
+    if (ingredients.isEmpty()) {
+        Text(text = errorMessage)
+    } else {
+        LazyColumn(modifier = modifier) {
+            items(ingredients) { zutat ->
+
+                Row(modifier = Modifier.fillMaxWidth().clickable(onClick = { onIngredientClicked(zutat) })) {
+                    Text(text = " - ${zutat.name}")
+
+                    if (showTrashIcon) {
+                        Row(modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End) {
+                            Image(painter = painterResource(id = R.drawable.ic_baseline_delete_24),
+                                modifier = Modifier.clickable {
+                                    onTrashIconClicked(zutat)
+                                },
+                                contentDescription = "Delete Ingredient")
+                        }
+                    }
+                }
+                Divider(thickness = 1.dp, color = Color.Black)
+            }
+        }
+    }
+}
+
+@Composable
+fun ComposeIngredientTab() {
+
+    val ingredientController = IngredientController(LocalContext.current)
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    var ingredientsAutoComplete by remember {
+        mutableStateOf(ingredientController.getAllAvailable(false))
+    }
+    var ingredients by remember { mutableStateOf(ingredientController.getAllAvailable(true)) }
+    var addNewIngredient by remember { mutableStateOf(false) }
+    var newIngredient by remember {
+        mutableStateOf("")
+    }
+
+    Column(modifier = Modifier.pointerInput(Unit) {
+        detectTapGestures(onTap = {
+            focusManager.clearFocus()
+            addNewIngredient = false
+        })
+    }) {
+
+        ComposeIngredientList(modifier = Modifier.weight(1f),
+            ingredients = ingredients,
+            showTrashIcon = true,
+            onTrashIconClicked = {
+                ingredientController.setAvailable(it.name, false)
+                ingredients = ingredientController.getAllAvailable(true)
+                ingredientsAutoComplete =
+                    getIngredientsForAutoComplete(ingredientController, newIngredient)
+            })
+
+        if (addNewIngredient) {
+
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)) {
+
+                TextField(value = newIngredient,
+                    onValueChange = {
+                        newIngredient = it
+                        ingredientsAutoComplete =
+                            getIngredientsForAutoComplete(ingredientController, newIngredient)
+                    },
+                    label = { Text(text = "Enter New Ingredient") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+
+                        if (ingredientExists(ingredientController, newIngredient)) {
+                            ingredientController.setAvailable(newIngredient, true)
+                            ingredients = ingredientController.getAllAvailable(true)
+                        }
+                        newIngredient = ""
+
+                        ingredientsAutoComplete =
+                            getIngredientsForAutoComplete(ingredientController, newIngredient)
+
+                        addNewIngredient = false
+                    }),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .focusRequester(focusRequester))
+
+                ComposeIngredientList(ingredients = ingredientsAutoComplete, onIngredientClicked = {
+                    focusManager.clearFocus()
+                    ingredientController.setAvailable(it.name, true)
+                    ingredients = ingredientController.getAllAvailable(true)
+                    newIngredient = ""
+                    addNewIngredient = false
+                    ingredientsAutoComplete =
+                        getIngredientsForAutoComplete(ingredientController, newIngredient)
+                })
+
+
+            }
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        ComposeAddButton(modifier = Modifier
+            .padding(horizontal = 6.dp)
+            .align(Alignment.End),
+            onClick = {
+                addNewIngredient = true
+                focusManager.moveFocus(FocusDirection.Down)
+            })
+
+
+    }
+}
+
+@Suppress("SENSELESS_COMPARISON") // false positive
+private fun ingredientExists(
+    ingredientController: IngredientController,
+    newIngredient: String,
+) = ingredientController.getByName(newIngredient) != null
+
+private fun getIngredientsForAutoComplete(
+    zutatController: IngredientController,
+    contains: String,
+) = zutatController.getAllAvailable(false)
+    .filter { zutat -> zutat.name.contains(contains, true) }

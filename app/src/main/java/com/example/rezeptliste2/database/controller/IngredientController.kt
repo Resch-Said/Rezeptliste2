@@ -8,11 +8,10 @@ import com.example.rezeptliste2.database.dao.RezeptZutatDao
 import com.example.rezeptliste2.database.dao.ZutatDao
 import com.example.rezeptliste2.database.dto.Zutat
 
-class ZutatController(context: Context) {
+class IngredientController(context: Context) {
     fun getAllAvailable(isAvailable: Boolean): List<Zutat> {
         return zutatDao.getAllAvailable(isAvailable)
     }
-
 
     fun setAvailable(ingredient: String, available: Boolean) {
 
