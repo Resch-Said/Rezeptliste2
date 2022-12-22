@@ -26,16 +26,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.rezeptliste2.database.controller.IngredientController
-import com.example.rezeptliste2.database.dto.Zutat
+import com.example.rezeptliste2.database.dto.Ingredient
 
 
 @Composable
 fun ComposeIngredientList(
     modifier: Modifier = Modifier,
-    ingredients: List<Zutat>,
+    ingredients: List<Ingredient>,
     showTrashIcon: Boolean = false,
-    onIngredientClicked: (Zutat) -> Unit = {},
-    onTrashIconClicked: (Zutat) -> Unit = {},
+    onIngredientClicked: (Ingredient) -> Unit = {},
+    onTrashIconClicked: (Ingredient) -> Unit = {},
     errorMessage: String = "No Ingredient found",
 ) {
 

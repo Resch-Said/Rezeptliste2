@@ -3,13 +3,13 @@ package com.example.rezeptliste2.database.controller
 import android.content.Context
 import androidx.room.Room
 import com.example.rezeptliste2.database.Database
-import com.example.rezeptliste2.database.dao.RezeptDao
+import com.example.rezeptliste2.database.dao.RecipeDao
 import com.example.rezeptliste2.database.dao.RezeptZutatDao
 import com.example.rezeptliste2.database.dao.ZutatDao
-import com.example.rezeptliste2.database.dto.Zutat
+import com.example.rezeptliste2.database.dto.Ingredient
 
 class IngredientController(context: Context) {
-    fun getAllAvailable(isAvailable: Boolean): List<Zutat> {
+    fun getAllAvailable(isAvailable: Boolean): List<Ingredient> {
         return zutatDao.getAllAvailable(isAvailable)
     }
 
@@ -23,13 +23,13 @@ class IngredientController(context: Context) {
         }
     }
 
-    fun getByName(ingredient: String): Zutat {
+    fun getByName(ingredient: String): Ingredient {
         return zutatDao.getByName(ingredient)
     }
 
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
-    private var rezeptDao: RezeptDao
+    private var rezeptDao: RecipeDao
     private var db: Database
 
     init {
