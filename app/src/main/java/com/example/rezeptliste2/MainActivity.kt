@@ -41,7 +41,7 @@ fun App() {
                 ComposeIngredientTab()
             }
             1 -> {
-                ComposeCookingRecipeList()
+                ComposeCookingRecipeTab()
             }
         }
     }
