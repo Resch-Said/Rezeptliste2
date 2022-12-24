@@ -42,24 +42,28 @@ fun ComposeRecipeCard(recipe: Recipe) {
     val recipeController = RecipeController(LocalContext.current)
     val image = byteArrayToBitmapImage(recipe.bild)
 
-    Column {
-        Image(bitmap = image, contentDescription = recipe.name)
+    Image(bitmap = image, contentDescription = recipe.name)
+    Text(text = recipe.name)
 
-        Text(text = recipe.name)
-        Row {
-            Text(text = "Duration: " + recipe.dauer.toString() + " Minuten")
-            Text(text = " Availability: ")
+    Row {
+        Text(text = "Duration: " + recipe.dauer.toString() + " minutes")
+        Text(text = " Availability: ")
 
-            if (recipeController.getRecipeIngredientsAvailable(recipe, true).isEmpty()) {
-                Image(painter = painterResource(id = R.drawable.x_mark_3_32),
-                    contentDescription = "No Ingredients Available")
-            } else if (recipeController.getRecipeIngredientsAvailable(recipe, false).isEmpty()) {
-                Image(painter = painterResource(id = R.drawable.eo_circle_green_checkmark_svg),
-                    contentDescription = "No Ingredients Available")
-            } else {
-                Image(painter = painterResource(id = R.drawable.minus_4_32),
-                    contentDescription = "No Ingredients Available")
-            }
+        if (recipeController.getRecipeIngredientsAvailable(recipe, true).isEmpty()) {
+            Image(
+                painter = painterResource(id = R.drawable.x_mark_3_32),
+                contentDescription = "No Ingredients Available"
+            )
+        } else if (recipeController.getRecipeIngredientsAvailable(recipe, false).isEmpty()) {
+            Image(
+                painter = painterResource(id = R.drawable.eo_circle_green_checkmark_svg),
+                contentDescription = "No Ingredients Available"
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.minus_4_32),
+                contentDescription = "No Ingredients Available"
+            )
         }
     }
 }
