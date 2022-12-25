@@ -63,7 +63,6 @@ fun ComposeCookingRecipeTab() {
     }
 }
 
-
 @Composable
 fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
 
@@ -71,6 +70,7 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
         ComposeRecipeCardDetailViewHeader(recipe = recipe)
@@ -86,7 +86,6 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
 
     }
 }
-
 
 @Composable
 fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
@@ -121,7 +120,6 @@ fun ComposeTableCell(
     )
 }
 
-
 @Composable
 fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 
@@ -149,19 +147,16 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
             ComposeTableCell(text = "Amount", modifier = Modifier.weight(1f))
         }
 
-        LazyColumn {
-            items(ingredients) {
-                Row {
-                    ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
-
-                    if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
-                        ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f))
-                    } else {
-                        ComposeTableCell(
-                            text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+        ingredients.forEach {
+            Row {
+                ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
+                if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
+                    ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f))
+                } else {
+                    ComposeTableCell(
+                        text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
@@ -185,7 +180,6 @@ fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
     }
 }
 
-
 @Composable
 fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
     var textState by remember { mutableStateOf(text) }
@@ -198,7 +192,6 @@ fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
             .padding(2.dp), singleLine = true
     )
 }
-
 
 @Composable
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
@@ -271,7 +264,6 @@ private fun ComposeRecipeImage(recipe: Recipe, modifier: Modifier = Modifier) {
     )
 }
 
-
 // Using later to save an image in the database
 private fun bitmapImageToByteArray(image: ImageBitmap): ByteArray {
     val bitmap = image.asAndroidBitmap()
@@ -282,4 +274,3 @@ private fun bitmapImageToByteArray(image: ImageBitmap): ByteArray {
 
 private fun byteArrayToBitmapImage(image: ByteArray?) =
     BitmapFactory.decodeByteArray(image, 0, image!!.size).asImageBitmap()
-
