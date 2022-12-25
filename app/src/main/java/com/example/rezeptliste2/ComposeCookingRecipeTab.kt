@@ -77,7 +77,9 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
         ComposeRecipeCardDetailViewInstructionList(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
 
-        ComposeAddButton(onClick = { onBack() }, buttonText = "Done")
+        ComposeAddButton(
+            onClick = { onBack() }, buttonText = "Done", modifier = Modifier.align(Alignment.End)
+        )
 
     }
 }
