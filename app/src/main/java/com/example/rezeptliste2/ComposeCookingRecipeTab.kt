@@ -7,22 +7,30 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rezeptliste2.database.controller.RecipeController
 import com.example.rezeptliste2.database.dto.Recipe
+import com.example.rezeptliste2.ui.theme.Rezeptliste2Theme
 import java.io.ByteArrayOutputStream
 
 
@@ -57,13 +65,58 @@ fun ComposeCookingRecipeTab() {
 
 @Composable
 fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(text = recipe.name, fontSize = 24.sp, modifier = Modifier.clickable { onBack() })
+
+        ComposeRecipeCardDetailViewHeader()
+        ComposeRecipeCardDetailViewIngredientList()
+        ComposeRecipeCardDetailViewInstructionList()
+        ComposeAddButton(onClick = { onBack() }, buttonText = "Done")
+
     }
+}
+
+@Composable
+fun ComposeRecipeCardDetailViewInstructionList() {
+    // TODO: Implement
+}
+
+@Composable
+fun ComposeRecipeCardDetailViewHeader() {
+    // TODO: Implement
+}
+
+@Composable
+fun ComposeRecipeCardDetailViewIngredientList() {
+    // TODO: Implement
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun DetailViewPreview() {
+    Rezeptliste2Theme {
+
+        ComposeTextEditable(text = "Hallo Welt")
+
+    }
+}
+
+@Composable
+fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
+    var textState by remember { mutableStateOf(text) }
+
+    BasicTextField(
+        value = textState, onValueChange = {
+            textState = it
+        }, modifier = modifier
+            .border(1.dp, Color.Black)
+            .padding(2.dp), singleLine = true
+    )
 }
 
 

@@ -48,13 +48,12 @@ fun App() {
 }
 
 @Composable
-fun ComposeAddButton(onClick: () -> Unit, modifier: Modifier) {
+fun ComposeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier, buttonText: String) {
     Box(modifier = modifier) {
         Button(onClick = onClick, shape = RoundedCornerShape(10.dp)) {
-            Text(text = "+")
+            Text(text = buttonText)
         }
     }
-
 }
 
 @Preview(showBackground = true)

@@ -150,7 +150,7 @@ fun ComposeIngredientTab() {
 
         ComposeAddButton(modifier = Modifier
             .padding(horizontal = 6.dp)
-            .align(Alignment.End),
+            .align(Alignment.End), buttonText = "+",
             onClick = {
                 addNewIngredient = true
                 focusManager.moveFocus(FocusDirection.Down)
