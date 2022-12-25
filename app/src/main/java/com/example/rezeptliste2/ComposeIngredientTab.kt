@@ -45,17 +45,25 @@ fun ComposeIngredientList(
         LazyColumn(modifier = modifier) {
             items(ingredients) { ingredient ->
 
-                Row(modifier = Modifier.fillMaxWidth().clickable(onClick = { onIngredientClicked(ingredient) })) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = { onIngredientClicked(ingredient) })
+                ) {
                     Text(text = " - ${ingredient.name}")
 
                     if (showTrashIcon) {
-                        Row(modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End) {
-                            Image(painter = painterResource(id = R.drawable.ic_baseline_delete_24),
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_baseline_delete_24),
                                 modifier = Modifier.clickable {
                                     onTrashIconClicked(ingredient)
                                 },
-                                contentDescription = "Delete Ingredient")
+                                contentDescription = "Delete Ingredient"
+                            )
                         }
                     }
                 }
@@ -100,9 +108,11 @@ fun ComposeIngredientTab() {
 
         if (addNewIngredient) {
 
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
 
                 TextField(value = newIngredient,
                     onValueChange = {
@@ -111,8 +121,9 @@ fun ComposeIngredientTab() {
                             getIngredientsForAutoComplete(ingredientController, newIngredient)
                     },
                     label = { Text(text = "Enter New Ingredient") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                    ),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
 
@@ -129,7 +140,8 @@ fun ComposeIngredientTab() {
                     }),
                     modifier = Modifier
                         .padding(16.dp)
-                        .focusRequester(focusRequester))
+                        .focusRequester(focusRequester)
+                )
 
                 ComposeIngredientList(ingredients = ingredientsAutoComplete, onIngredientClicked = {
                     focusManager.clearFocus()
@@ -150,13 +162,12 @@ fun ComposeIngredientTab() {
 
         ComposeAddButton(modifier = Modifier
             .padding(horizontal = 6.dp)
-            .align(Alignment.End), buttonText = "+",
+            .align(Alignment.End),
+            buttonText = "+",
             onClick = {
                 addNewIngredient = true
                 focusManager.moveFocus(FocusDirection.Down)
             })
-
-
     }
 }
 
@@ -168,5 +179,4 @@ private fun ingredientExists(
 private fun getIngredientsForAutoComplete(
     zutatController: IngredientController,
     contains: String,
-) = zutatController.getAllAvailable(false)
-    .filter { zutat -> zutat.name.contains(contains, true) }
+) = zutatController.getAllAvailable(false).filter { zutat -> zutat.name.contains(contains, true) }

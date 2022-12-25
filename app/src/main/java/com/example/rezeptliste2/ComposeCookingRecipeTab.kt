@@ -38,14 +38,34 @@ fun ComposeCookingRecipeTab() {
     val recipeController = RecipeController(LocalContext.current)
 
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
-    var openRecipeDetailView by remember { mutableStateOf(Pair<Recipe, Boolean>(recipes[0], false)) }
+    var openRecipeDetailView by remember {
+        mutableStateOf(
+            Pair<Recipe, Boolean>(
+                recipes[0], false
+            )
+        )
+    }
 
     if (!openRecipeDetailView.second) {
-        LazyVerticalGrid(cells = GridCells.Fixed(2)) {
-            items(recipes) {
-                ComposeRecipeCard(it, onClick = {
-                    openRecipeDetailView = Pair(it, true)
-                })
+
+        Column {
+            LazyVerticalGrid(cells = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
+                items(recipes) {
+                    ComposeRecipeCard(it, onClick = {
+                        openRecipeDetailView = Pair(it, true)
+                    })
+                }
+            }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ComposeAddButton(
+                    onClick = {
+                        // TODO: Add new Recipe
+                    },
+                    buttonText = "+",
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(horizontal = 6.dp)
+                )
             }
         }
     }
@@ -81,11 +101,13 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -
 
         Row {
             ComposeAddButton(
-                onClick = { onBack() }, buttonText = "Back")
+                onClick = { onBack() }, buttonText = "Back"
+            )
 
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 ComposeAddButton(
-                    onClick = { onDone() }, buttonText = "Done")
+                    onClick = { onDone() }, buttonText = "Done"
+                )
             }
         }
     }
@@ -200,7 +222,7 @@ fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
-    var fontSize by remember { mutableStateOf(20.sp) }
+    var fontSize by remember { mutableStateOf(16.sp) }
     var visibility by remember { mutableStateOf(0f) }
 
     Column(
@@ -229,7 +251,7 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
                 onTextLayout = { textLayoutResult ->
                     if (textLayoutResult.hasVisualOverflow) {
                         Log.i("ComposeRecipeCard", "Text did overflow. FontSize: $fontSize")
-                        fontSize *= 0.9f
+                        fontSize *= 0.95f
                     } else {
                         visibility = 1f
                     }
