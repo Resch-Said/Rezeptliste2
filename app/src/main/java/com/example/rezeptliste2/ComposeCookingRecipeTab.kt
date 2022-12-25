@@ -52,14 +52,16 @@ fun ComposeCookingRecipeTab() {
 
     if (openDetailView.second) {
 
-        ComposeRecipeCardDetailView(openDetailView.first, onBack = {
+        ComposeRecipeCardDetailView(openDetailView.first, onDone = {
+            openDetailView = Pair(openDetailView.first, false)
+        }, onBack = {
             openDetailView = Pair(openDetailView.first, false)
         })
     }
 }
 
 @Composable
-fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
+fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -> Unit) {
 
     Column(
         modifier = Modifier
@@ -77,10 +79,15 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
         ComposeRecipeCardDetailViewInstructionList(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
 
-        ComposeAddButton(
-            onClick = { onBack() }, buttonText = "Done", modifier = Modifier.align(Alignment.End)
-        )
+        Row {
+            ComposeAddButton(
+                onClick = { onBack() }, buttonText = "Back")
 
+            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                ComposeAddButton(
+                    onClick = { onDone() }, buttonText = "Done")
+            }
+        }
     }
 }
 
