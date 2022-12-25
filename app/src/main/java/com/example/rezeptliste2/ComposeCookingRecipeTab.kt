@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +23,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,7 +79,7 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
         ComposeRecipeCardDetailViewIngredientList(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
 
-        ComposeRecipeCardDetailViewInstructionList()
+        ComposeRecipeCardDetailViewInstructionList(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
 
         ComposeAddButton(onClick = { onBack() }, buttonText = "Done")
@@ -85,8 +90,6 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
 
 @Composable
 fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
-
-    // TODO Make text editable
 
     Row {
         ComposeRecipeImage(recipe = recipe, modifier = Modifier.weight(2f))
@@ -121,7 +124,6 @@ fun ComposeTableCell(
 
 @Composable
 fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
-    // TODO: Show ingredient list of recipe as table
 
     val recipeController = RecipeController(LocalContext.current)
 
@@ -131,17 +133,21 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Row {
-            ComposeTableCell(
-                text = "Ingredients", modifier = Modifier.weight(1f)
-            )
-        }
+        Text(
+            text = "Ingredients",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline,
+            fontSize = 24.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
 
         Row {
             ComposeTableCell(text = "Ingredient", modifier = Modifier.weight(1f))
             ComposeTableCell(text = "Amount", modifier = Modifier.weight(1f))
         }
-
 
         LazyColumn {
             items(ingredients) {
@@ -156,18 +162,27 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
                             modifier = Modifier.weight(1f)
                         )
                     }
-
                 }
             }
         }
-
     }
-
 }
 
 @Composable
-fun ComposeRecipeCardDetailViewInstructionList() {
+fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
     // TODO: Implement
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Instructions",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline,
+            fontSize = 24.sp,
+            modifier = Modifier.fillMaxWidth()
+        )
+        recipe.zubereitung?.let { Text(text = it, textAlign = TextAlign.Justify) }
+    }
 }
 
 
