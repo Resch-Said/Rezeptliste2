@@ -60,6 +60,7 @@ fun ComposeCookingRecipeTab() {
                 ComposeAddButton(
                     onClick = {
                         // TODO: Add new Recipe
+                              
                     },
                     buttonText = "+",
                     modifier = Modifier
@@ -73,6 +74,8 @@ fun ComposeCookingRecipeTab() {
     if (openRecipeDetailView.second) {
 
         ComposeRecipeCardDetailView(openRecipeDetailView.first, onDone = {
+            // TODO: Update Recipe
+
             openRecipeDetailView = Pair(openRecipeDetailView.first, false)
         }, onBack = {
             openRecipeDetailView = Pair(openRecipeDetailView.first, false)
