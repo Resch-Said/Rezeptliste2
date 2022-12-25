@@ -16,14 +16,17 @@ class IngredientController(context: Context) {
     fun setAvailable(ingredient: String, available: Boolean) {
 
         val zutat = zutatDao.getByName(ingredient)
-        zutatDao.setAvailable(zutat.z_id, available)
 
-        if (available) {
-            zutatDao.setOrderID(zutat.z_id, zutatDao.getLastOrderID() + 1)
+        if (zutat != null) {
+            zutatDao.setAvailable(zutat.z_id, available)
+
+            if (available) {
+                zutatDao.setOrderID(zutat.z_id, zutatDao.getLastOrderID() + 1)
+            }
         }
     }
 
-    fun getByName(ingredient: String): Ingredient {
+    fun getByName(ingredient: String): Ingredient? {
         return zutatDao.getByName(ingredient)
     }
 

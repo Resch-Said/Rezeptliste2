@@ -43,17 +43,17 @@ fun ComposeIngredientList(
         Text(text = errorMessage)
     } else {
         LazyColumn(modifier = modifier) {
-            items(ingredients) { zutat ->
+            items(ingredients) { ingredient ->
 
-                Row(modifier = Modifier.fillMaxWidth().clickable(onClick = { onIngredientClicked(zutat) })) {
-                    Text(text = " - ${zutat.name}")
+                Row(modifier = Modifier.fillMaxWidth().clickable(onClick = { onIngredientClicked(ingredient) })) {
+                    Text(text = " - ${ingredient.name}")
 
                     if (showTrashIcon) {
                         Row(modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End) {
                             Image(painter = painterResource(id = R.drawable.ic_baseline_delete_24),
                                 modifier = Modifier.clickable {
-                                    onTrashIconClicked(zutat)
+                                    onTrashIconClicked(ingredient)
                                 },
                                 contentDescription = "Delete Ingredient")
                         }
@@ -160,7 +160,6 @@ fun ComposeIngredientTab() {
     }
 }
 
-@Suppress("SENSELESS_COMPARISON") // false positive
 private fun ingredientExists(
     ingredientController: IngredientController,
     newIngredient: String,

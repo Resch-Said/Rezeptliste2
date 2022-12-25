@@ -25,6 +25,9 @@ interface RezeptZutatDao {
     @Query("SELECT * FROM Zutat WHERE z_id IN (SELECT z_id FROM RezeptZutat WHERE r_id LIKE :recipeID) AND isAvailable LIKE :available")
     fun getRecipeIngredientsAvailable(recipeID: Int, available: Boolean): List<Ingredient>
 
+    @Query("SELECT menge FROM RezeptZutat WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID")
+    fun getRecipeIngredientAmount(recipeID: Int, ingredientID: Int): String?
+
     @Update
     fun updateZutat(rezeptZutat: RecipeIngredient)
 
@@ -33,5 +36,6 @@ interface RezeptZutatDao {
 
     @Delete
     fun delete(rezeptZutat: RecipeIngredient)
+
 
 }

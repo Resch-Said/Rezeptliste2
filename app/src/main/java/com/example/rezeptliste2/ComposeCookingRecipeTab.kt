@@ -9,14 +9,11 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -24,7 +21,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +39,6 @@ fun ComposeCookingRecipeTab() {
 
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
     var openDetailView by remember { mutableStateOf(Pair<Recipe, Boolean>(recipes[0], false)) }
-
 
     if (!openDetailView.second) {
         LazyVerticalGrid(cells = GridCells.Fixed(2)) {
@@ -72,12 +68,101 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
             .padding(16.dp)
     ) {
 
-        ComposeRecipeCardDetailViewHeader()
-        ComposeRecipeCardDetailViewIngredientList()
+        ComposeRecipeCardDetailViewHeader(recipe = recipe)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ComposeRecipeCardDetailViewIngredientList(recipe = recipe)
+        Spacer(modifier = Modifier.height(16.dp))
+
         ComposeRecipeCardDetailViewInstructionList()
+
+
         ComposeAddButton(onClick = { onBack() }, buttonText = "Done")
 
     }
+}
+
+
+@Composable
+fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
+
+    // TODO Make text editable
+
+    Row {
+        ComposeRecipeImage(recipe = recipe, modifier = Modifier.weight(2f))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .weight(3f)
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(text = "Name: ${recipe.name}")
+            Text(text = "Duration: ${recipe.dauer} Minutes")
+        }
+    }
+
+}
+
+@Composable
+fun ComposeTableCell(
+    text: String, modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        modifier = modifier.border(
+            width = 1.dp, color = Color.Black
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+
+
+@Composable
+fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
+    // TODO: Show ingredient list of recipe as table
+
+    val recipeController = RecipeController(LocalContext.current)
+
+    var ingredients by remember { mutableStateOf(recipeController.getRecipeIngredients(recipe)) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Row {
+            ComposeTableCell(
+                text = "Ingredients", modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row {
+            ComposeTableCell(text = "Ingredient", modifier = Modifier.weight(1f))
+            ComposeTableCell(text = "Amount", modifier = Modifier.weight(1f))
+        }
+
+
+        LazyColumn {
+            items(ingredients) {
+                Row {
+                    ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
+
+                    if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
+                        ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f))
+                    } else {
+                        ComposeTableCell(
+                            text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                }
+            }
+        }
+
+    }
+
 }
 
 @Composable
@@ -85,26 +170,6 @@ fun ComposeRecipeCardDetailViewInstructionList() {
     // TODO: Implement
 }
 
-@Composable
-fun ComposeRecipeCardDetailViewHeader() {
-    // TODO: Implement
-}
-
-@Composable
-fun ComposeRecipeCardDetailViewIngredientList() {
-    // TODO: Implement
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun DetailViewPreview() {
-    Rezeptliste2Theme {
-
-        ComposeTextEditable(text = "Hallo Welt")
-
-    }
-}
 
 @Composable
 fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
@@ -123,7 +188,6 @@ fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
-    val image = byteArrayToBitmapImage(recipe.bild)
     var fontSize by remember { mutableStateOf(20.sp) }
     var visibility by remember { mutableStateOf(0f) }
 
@@ -136,12 +200,8 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
                 onClick()
             }) {
 
-        Image(
-            bitmap = image,
-            contentDescription = recipe.name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.clip(RoundedCornerShape(16.dp))
-        )
+        ComposeRecipeImage(recipe)
+
         Text(text = recipe.name)
 
         Row {
@@ -184,6 +244,16 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+private fun ComposeRecipeImage(recipe: Recipe, modifier: Modifier = Modifier) {
+    Image(
+        bitmap = byteArrayToBitmapImage(recipe.bild),
+        contentDescription = recipe.name,
+        contentScale = ContentScale.Crop,
+        modifier = modifier.clip(RoundedCornerShape(16.dp))
+    )
 }
 
 

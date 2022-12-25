@@ -24,6 +24,12 @@ class RecipeController(context: Context) {
         return rezeptZutatDao.getRecipeIngredientsAvailable(recipe.r_id, available)
     }
 
+    fun getRecipeIngredientAmount(recipe: Recipe, ingredient: Ingredient): String? {
+
+        return rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id)
+
+    }
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao
