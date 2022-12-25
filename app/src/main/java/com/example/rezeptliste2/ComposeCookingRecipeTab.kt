@@ -2,6 +2,7 @@ package com.example.rezeptliste2
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -10,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -31,14 +33,36 @@ fun ComposeCookingRecipeTab() {
     val recipeController = RecipeController(LocalContext.current)
 
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
+    var openDetailView by remember { mutableStateOf(Pair<Recipe, Boolean>(recipes[0], false)) }
 
 
-    LazyVerticalGrid(cells = GridCells.Fixed(2)) {
-        items(recipes) {
-            ComposeRecipeCard(it, onClick = {
-
-            })
+    if (!openDetailView.second) {
+        LazyVerticalGrid(cells = GridCells.Fixed(2)) {
+            items(recipes) {
+                ComposeRecipeCard(it, onClick = {
+                    openDetailView = Pair(it, true)
+                })
+            }
         }
+    }
+
+    if (openDetailView.second) {
+
+        ComposeRecipeCardDetailView(openDetailView.first, onBack = {
+            openDetailView = Pair(openDetailView.first, false)
+        })
+    }
+}
+
+
+@Composable
+fun ComposeRecipeCardDetailView(recipe: Recipe, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(text = recipe.name, fontSize = 24.sp, modifier = Modifier.clickable { onBack() })
     }
 }
 
@@ -47,10 +71,12 @@ fun ComposeCookingRecipeTab() {
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
     val image = byteArrayToBitmapImage(recipe.bild)
-    var fontSize by remember { mutableStateOf(12.sp) }
+    var fontSize by remember { mutableStateOf(20.sp) }
+    var visibility by remember { mutableStateOf(0f) }
 
     Column(
         Modifier
+            .alpha(visibility)
             .wrapContentSize()
             .padding(6.dp)
             .clickable {
@@ -66,36 +92,41 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
         Text(text = recipe.name)
 
         Row {
-            Text(text = "Duration: " + recipe.dauer.toString() + " minutes",
+            Text(
+                text = "Duration: " + recipe.dauer.toString() + " minutes",
+                maxLines = 1,
+                fontSize = fontSize
+            )
+
+            Text(text = " Availability: ",
                 fontSize = fontSize,
+                maxLines = 1,
                 onTextLayout = { textLayoutResult ->
-                    if (textLayoutResult.didOverflowWidth) {
-                        fontSize *= 0.9
+                    if (textLayoutResult.hasVisualOverflow) {
+                        Log.i("ComposeRecipeCard", "Text did overflow. FontSize: $fontSize")
+                        fontSize *= 0.9f
+                    } else {
+                        visibility = 1f
                     }
                 })
-            Text(text = " Availability: ", fontSize = fontSize, onTextLayout = { textLayoutResult ->
-                if (textLayoutResult.didOverflowWidth) {
-                    fontSize *= 0.9
-                }
-            })
 
             if (recipeController.getRecipeIngredientsAvailable(recipe, true).isEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.x_mark_3_32),
-                    contentDescription = "No Ingredients Available", modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                    contentDescription = "No Ingredients Available",
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             } else if (recipeController.getRecipeIngredientsAvailable(recipe, false).isEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.eo_circle_green_checkmark_svg),
-                    contentDescription = "No Ingredients Available", modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                    contentDescription = "All Ingredients Available",
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             } else {
                 Image(
                     painter = painterResource(id = R.drawable.minus_4_32),
-                    contentDescription = "No Ingredients Available", modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                    contentDescription = "A few Ingredients Available",
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
