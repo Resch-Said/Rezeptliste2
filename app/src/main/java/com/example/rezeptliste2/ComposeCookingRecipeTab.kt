@@ -38,24 +38,24 @@ fun ComposeCookingRecipeTab() {
     val recipeController = RecipeController(LocalContext.current)
 
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
-    var openDetailView by remember { mutableStateOf(Pair<Recipe, Boolean>(recipes[0], false)) }
+    var openRecipeDetailView by remember { mutableStateOf(Pair<Recipe, Boolean>(recipes[0], false)) }
 
-    if (!openDetailView.second) {
+    if (!openRecipeDetailView.second) {
         LazyVerticalGrid(cells = GridCells.Fixed(2)) {
             items(recipes) {
                 ComposeRecipeCard(it, onClick = {
-                    openDetailView = Pair(it, true)
+                    openRecipeDetailView = Pair(it, true)
                 })
             }
         }
     }
 
-    if (openDetailView.second) {
+    if (openRecipeDetailView.second) {
 
-        ComposeRecipeCardDetailView(openDetailView.first, onDone = {
-            openDetailView = Pair(openDetailView.first, false)
+        ComposeRecipeCardDetailView(openRecipeDetailView.first, onDone = {
+            openRecipeDetailView = Pair(openRecipeDetailView.first, false)
         }, onBack = {
-            openDetailView = Pair(openDetailView.first, false)
+            openRecipeDetailView = Pair(openRecipeDetailView.first, false)
         })
     }
 }
