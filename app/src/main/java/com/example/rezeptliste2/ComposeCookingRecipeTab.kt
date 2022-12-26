@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rezeptliste2.database.controller.RecipeController
 import com.example.rezeptliste2.database.dto.Recipe
+import org.w3c.dom.Text
 import java.io.ByteArrayOutputStream
 
 
@@ -131,8 +133,6 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -
 
 @Composable
 fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
-
-
     val focusManager = LocalFocusManager.current
 
     Row {
@@ -170,8 +170,21 @@ fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
 
 @Composable
 fun ComposeTableCell(
-    text: String, modifier: Modifier = Modifier
+    text: String, modifier: Modifier = Modifier, textStyle: TextStyle = LocalTextStyle.current
 ) {
+
+    val focusManager = LocalFocusManager.current
+
+    ComposeTextEditable(
+        text = text,
+        onDone = {
+            focusManager.clearFocus()
+        },
+        modifier = modifier.border(1.dp, Color.Black),
+        textStyle = textStyle.copy(textAlign = TextAlign.Center)
+    )
+
+    /*
     Text(
         text = text,
         modifier = modifier.border(
@@ -179,6 +192,7 @@ fun ComposeTableCell(
         ),
         textAlign = TextAlign.Center,
     )
+    */
 }
 
 @Composable
@@ -204,15 +218,34 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
         )
 
         Row {
-            ComposeTableCell(text = "Ingredient", modifier = Modifier.weight(1f))
-            ComposeTableCell(text = "Amount", modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Ingredient",
+                modifier = Modifier
+                    .border(
+                        width = 1.dp, color = Color.Black
+                    )
+                    .weight(1f),
+                textAlign = TextAlign.Center,
+            )
+
+            Text(
+                text = "Amount",
+                modifier = Modifier
+                    .border(
+                        width = 1.dp, color = Color.Black
+                    )
+                    .weight(1f),
+                textAlign = TextAlign.Center,
+            )
+
         }
 
         ingredients.forEach {
             Row {
                 ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
                 if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
-                    ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f))
+                    ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f), textStyle = TextStyle(color = Color.Red))
                 } else {
                     ComposeTableCell(
                         text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
@@ -227,6 +260,8 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 @Composable
 fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
 
+    val focusManager = LocalFocusManager.current
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Instructions",
@@ -236,7 +271,11 @@ fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
             fontSize = 24.sp,
             modifier = Modifier.fillMaxWidth()
         )
-        recipe.zubereitung?.let { Text(text = it, textAlign = TextAlign.Justify) }
+
+        recipe.zubereitung?.let { ComposeTextEditable(text = it, onDone = {
+
+            focusManager.clearFocus()
+        }, textStyle = TextStyle(textAlign = TextAlign.Justify) ) }
     }
 }
 
@@ -247,7 +286,8 @@ fun ComposeTextEditable(
     onDone: () -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Done,
-    )
+    ),
+    textStyle: TextStyle = LocalTextStyle.current
 ) {
     var textState by remember { mutableStateOf(text) }
 
@@ -257,7 +297,7 @@ fun ComposeTextEditable(
             textState = it
         },
         modifier = modifier.width(intrinsicSize = IntrinsicSize.Min),
-        textStyle = TextStyle(fontSize = 16.sp),
+        textStyle = textStyle.copy(fontSize = 16.sp), //TextStyle(fontSize = 16.sp),
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
             onDone()
