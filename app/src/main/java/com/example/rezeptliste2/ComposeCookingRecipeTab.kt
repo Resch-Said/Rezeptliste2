@@ -4,10 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,10 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -60,7 +68,7 @@ fun ComposeCookingRecipeTab() {
                 ComposeAddButton(
                     onClick = {
                         // TODO: Add new Recipe
-                              
+
                     },
                     buttonText = "+",
                     modifier = Modifier
@@ -86,12 +94,17 @@ fun ComposeCookingRecipeTab() {
 @Composable
 fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -> Unit) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    val focusManager = LocalFocusManager.current
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)
+        .verticalScroll(rememberScrollState())
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                focusManager.clearFocus()
+            })
+        }) {
 
         ComposeRecipeCardDetailViewHeader(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
@@ -119,6 +132,9 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -
 @Composable
 fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
 
+
+    val focusManager = LocalFocusManager.current
+
     Row {
         ComposeRecipeImage(recipe = recipe, modifier = Modifier.weight(2f))
 
@@ -129,11 +145,27 @@ fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
                 .weight(3f)
                 .align(Alignment.CenterVertically)
         ) {
-            Text(text = "Name: ${recipe.name}")
-            Text(text = "Duration: ${recipe.dauer} Minutes")
+            Row {
+                Text(text = "Name: ")
+                ComposeTextEditable(text = recipe.name, onDone = {
+                    focusManager.clearFocus()
+                })
+            }
+
+            Row {
+                Text(text = "Duration: ")
+
+                ComposeTextEditable(
+                    text = "${recipe.dauer}", onDone = {
+                        focusManager.clearFocus()
+                    }, keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+                    )
+                )
+                Text(text = " Minutes")
+            }
         }
     }
-
 }
 
 @Composable
@@ -194,7 +226,6 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 
 @Composable
 fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
-    // TODO: Implement
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -210,15 +241,27 @@ fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
 }
 
 @Composable
-fun ComposeTextEditable(text: String, modifier: Modifier = Modifier) {
+fun ComposeTextEditable(
+    text: String,
+    modifier: Modifier = Modifier,
+    onDone: () -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        imeAction = ImeAction.Done,
+    )
+) {
     var textState by remember { mutableStateOf(text) }
 
     BasicTextField(
-        value = textState, onValueChange = {
+        value = textState,
+        onValueChange = {
             textState = it
-        }, modifier = modifier
-            .border(1.dp, Color.Black)
-            .padding(2.dp), singleLine = true
+        },
+        modifier = modifier.width(intrinsicSize = IntrinsicSize.Min),
+        textStyle = TextStyle(fontSize = 16.sp),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = KeyboardActions(onDone = {
+            onDone()
+        })
     )
 }
 
