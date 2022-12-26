@@ -245,7 +245,11 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
             Row {
                 ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
                 if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
-                    ComposeTableCell(text = "not defined", modifier = Modifier.weight(1f), textStyle = TextStyle(color = Color.Red))
+                    ComposeTableCell(
+                        text = "not defined",
+                        modifier = Modifier.weight(1f),
+                        textStyle = TextStyle(color = Color.Red)
+                    )
                 } else {
                     ComposeTableCell(
                         text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
@@ -272,10 +276,12 @@ fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        recipe.zubereitung?.let { ComposeTextEditable(text = it, onDone = {
+        recipe.zubereitung?.let {
+            ComposeTextEditable(text = it, onDone = {
 
-            focusManager.clearFocus()
-        }, textStyle = TextStyle(textAlign = TextAlign.Justify) ) }
+                focusManager.clearFocus()
+            }, textStyle = TextStyle(textAlign = TextAlign.Justify))
+        }
     }
 }
 
