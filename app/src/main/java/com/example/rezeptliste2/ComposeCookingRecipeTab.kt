@@ -35,9 +35,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.rezeptliste2.database.controller.IngredientController
 import com.example.rezeptliste2.database.controller.RecipeController
+import com.example.rezeptliste2.database.dto.Ingredient
 import com.example.rezeptliste2.database.dto.Recipe
-import org.w3c.dom.Text
 import java.io.ByteArrayOutputStream
 
 
@@ -46,6 +47,7 @@ import java.io.ByteArrayOutputStream
 fun ComposeCookingRecipeTab() {
 
     val recipeController = RecipeController(LocalContext.current)
+    val ingredientController = IngredientController(LocalContext.current)
 
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
     var openRecipeDetailView by remember {
@@ -81,20 +83,63 @@ fun ComposeCookingRecipeTab() {
         }
     }
 
+    var recipeIngredients by remember {
+        mutableStateOf(
+            recipeController.getRecipeIngredients(
+                openRecipeDetailView.first
+            )
+        )
+    }
+    var currentIngredient by remember { mutableStateOf(recipeIngredients[0]) }
+
     if (openRecipeDetailView.second) {
 
-        ComposeRecipeCardDetailView(openRecipeDetailView.first, onDone = {
-            // TODO: Update Recipe
+        // TODO : provide all necessary data to the recipe detail view
 
-            openRecipeDetailView = Pair(openRecipeDetailView.first, false)
-        }, onBack = {
-            openRecipeDetailView = Pair(openRecipeDetailView.first, false)
-        })
+        recipeIngredients = recipeController.getRecipeIngredients(openRecipeDetailView.first)
+        val oldRecipe = openRecipeDetailView.first
+        var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
+
+
+        ComposeRecipeCardDetailView(
+            recipe = newRecipe, recipeIngredients = recipeIngredients,
+            onDone = {
+                // TODO: Update Recipe
+
+                openRecipeDetailView = Pair(openRecipeDetailView.first, false)
+            },
+            onBack = {
+                openRecipeDetailView = Pair(openRecipeDetailView.first, false)
+            },
+
+            onIngredientClick = {
+                currentIngredient = ingredientController.getByName(it)!!
+
+            },
+            onValueChangeRecipeName = {
+               newRecipe = newRecipe.copy(name = it)
+            },
+            onValueChangeRecipeDuration = {
+                newRecipe = newRecipe.copy(dauer = it.toInt())
+            },
+            onValueChangeRecipeInstruction = {
+                newRecipe = newRecipe.copy(zubereitung = it)
+            },
+        )
     }
 }
 
 @Composable
-fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -> Unit) {
+fun ComposeRecipeCardDetailView(
+    recipe: Recipe,
+    onDone: () -> Unit,
+    onBack: () -> Unit,
+    recipeIngredients: List<Ingredient>,
+    onIngredientClick: (String) -> Unit,
+    onValueChangeRecipeName: (String) -> Unit,
+    onValueChangeRecipeDuration: (String) -> Unit,
+    onValueChangeRecipeInstruction: (String) -> Unit,
+) {
 
     val focusManager = LocalFocusManager.current
 
@@ -108,13 +153,19 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -
             })
         }) {
 
-        ComposeRecipeCardDetailViewHeader(recipe = recipe)
+        ComposeRecipeCardDetailViewHeader(
+            recipe = recipe,
+            onValueChangeRecipeName = onValueChangeRecipeName,
+            onValueChangeRecipeDuration = onValueChangeRecipeDuration
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         ComposeRecipeCardDetailViewIngredientList(recipe = recipe)
         Spacer(modifier = Modifier.height(16.dp))
 
-        ComposeRecipeCardDetailViewInstructionList(recipe = recipe)
+        ComposeRecipeCardDetailViewInstructionList(
+            recipe = recipe, onValueChangeRecipeInstruction = onValueChangeRecipeInstruction
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row {
@@ -132,7 +183,11 @@ fun ComposeRecipeCardDetailView(recipe: Recipe, onDone: () -> Unit, onBack: () -
 }
 
 @Composable
-fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
+fun ComposeRecipeCardDetailViewHeader(
+    recipe: Recipe,
+    onValueChangeRecipeName: (String) -> Unit,
+    onValueChangeRecipeDuration: (String) -> Unit
+) {
     val focusManager = LocalFocusManager.current
 
     Row {
@@ -149,7 +204,7 @@ fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
                 Text(text = "Name: ")
                 ComposeTextEditable(text = recipe.name, onDone = {
                     focusManager.clearFocus()
-                })
+                }, onValueChange = onValueChangeRecipeName)
             }
 
             Row {
@@ -160,7 +215,7 @@ fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
                         focusManager.clearFocus()
                     }, keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
-                    )
+                    ), onValueChange = onValueChangeRecipeDuration
                 )
                 Text(text = " Minutes")
             }
@@ -170,29 +225,20 @@ fun ComposeRecipeCardDetailViewHeader(recipe: Recipe) {
 
 @Composable
 fun ComposeTableCell(
-    text: String, modifier: Modifier = Modifier, textStyle: TextStyle = LocalTextStyle.current
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = LocalTextStyle.current,
+    onValueChange: (String) -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
 
     ComposeTextEditable(
-        text = text,
-        onDone = {
+        text = text, modifier = modifier.border(1.dp, Color.Black), onDone = {
             focusManager.clearFocus()
-        },
-        modifier = modifier.border(1.dp, Color.Black),
-        textStyle = textStyle.copy(textAlign = TextAlign.Center)
+        }, textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange
     )
 
-    /*
-    Text(
-        text = text,
-        modifier = modifier.border(
-            width = 1.dp, color = Color.Black
-        ),
-        textAlign = TextAlign.Center,
-    )
-    */
 }
 
 @Composable
@@ -243,18 +289,22 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 
         ingredients.forEach {
             Row {
-                ComposeTableCell(text = it.name, modifier = Modifier.weight(1f))
+                ComposeTableCell(text = it.name,
+                    modifier = Modifier.weight(1f),
+                    onValueChange = {/* TODO */ })
+
                 if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
-                    ComposeTableCell(
-                        text = "not defined",
+                    ComposeTableCell(text = "not defined",
                         modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(color = Color.Red)
-                    )
+                        textStyle = TextStyle(color = Color.Red),
+                        onValueChange = {/* TODO */ })
                 } else {
-                    ComposeTableCell(
-                        text = recipeController.getRecipeIngredientAmount(recipe, it)!!,
-                        modifier = Modifier.weight(1f)
-                    )
+                    ComposeTableCell(text = recipeController.getRecipeIngredientAmount(
+                        recipe,
+                        it
+                    )!!,
+                        modifier = Modifier.weight(1f),
+                        onValueChange = {/* TODO */ })
                 }
             }
         }
@@ -262,7 +312,9 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 }
 
 @Composable
-fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
+fun ComposeRecipeCardDetailViewInstructionList(
+    recipe: Recipe, onValueChangeRecipeInstruction: (String) -> Unit
+) {
 
     val focusManager = LocalFocusManager.current
 
@@ -277,10 +329,15 @@ fun ComposeRecipeCardDetailViewInstructionList(recipe: Recipe) {
         )
 
         recipe.zubereitung?.let {
-            ComposeTextEditable(text = it, onDone = {
+            ComposeTextEditable(
+                text = it,
+                onDone = {
 
-                focusManager.clearFocus()
-            }, textStyle = TextStyle(textAlign = TextAlign.Justify))
+                    focusManager.clearFocus()
+                },
+                textStyle = TextStyle(textAlign = TextAlign.Justify),
+                onValueChange = onValueChangeRecipeInstruction
+            )
         }
     }
 }
@@ -293,17 +350,15 @@ fun ComposeTextEditable(
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Done,
     ),
-    textStyle: TextStyle = LocalTextStyle.current
+    textStyle: TextStyle = LocalTextStyle.current,
+    onValueChange: (String) -> Unit
 ) {
-    var textState by remember { mutableStateOf(text) }
 
     BasicTextField(
-        value = textState,
-        onValueChange = {
-            textState = it
-        },
+        value = text,
+        onValueChange = onValueChange,
         modifier = modifier.width(intrinsicSize = IntrinsicSize.Min),
-        textStyle = textStyle.copy(fontSize = 16.sp), //TextStyle(fontSize = 16.sp),
+        textStyle = textStyle.copy(fontSize = 16.sp),
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
             onDone()

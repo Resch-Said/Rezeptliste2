@@ -17,7 +17,7 @@ interface RecipeDao {
 
 
     @Update
-    fun updateRezept(rezept: Recipe)
+    fun updateRecipe(rezept: Recipe)
 
     @Insert
     fun insert(vararg rezept: Recipe)

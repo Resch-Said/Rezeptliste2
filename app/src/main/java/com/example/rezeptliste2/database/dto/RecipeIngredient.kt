@@ -14,5 +14,5 @@ import androidx.room.Index
 data class RecipeIngredient(
     val r_id: Int,
     val z_id: Int,
-    val menge: String?,
+    var menge: String?,
 )

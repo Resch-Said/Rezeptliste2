@@ -8,6 +8,7 @@ import com.example.rezeptliste2.database.dao.RezeptZutatDao
 import com.example.rezeptliste2.database.dao.ZutatDao
 import com.example.rezeptliste2.database.dto.Ingredient
 import com.example.rezeptliste2.database.dto.Recipe
+import com.example.rezeptliste2.database.dto.RecipeIngredient
 
 class RecipeController(context: Context) {
     fun getAllRecipes(): List<Recipe> {
@@ -27,8 +28,25 @@ class RecipeController(context: Context) {
     fun getRecipeIngredientAmount(recipe: Recipe, ingredient: Ingredient): String? {
 
         return rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id)
-
     }
+
+    fun getRecipeIngredients(recipe: Recipe, ingredients: List<Ingredient>): List<RecipeIngredient?> {
+
+        val recipeIngredients: MutableList<RecipeIngredient?> = mutableListOf()
+
+        ingredients.forEach {
+            recipeIngredients.add(rezeptZutatDao.getByID(it.z_id, recipe.r_id))
+        }
+
+        return recipeIngredients
+    }
+
+    fun updateRecipe(newRecipe: Recipe) {
+        // TODO: Update recipe
+
+        rezeptDao.updateRecipe(newRecipe)
+    }
+
 
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao

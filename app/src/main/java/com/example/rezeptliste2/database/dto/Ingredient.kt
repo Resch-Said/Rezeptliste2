@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity (tableName = "Zutat")
 data class Ingredient(
     @PrimaryKey(autoGenerate = true) val z_id: Int,
-    val name: String,
+    var name: String,
     var isAvailable: Boolean?,
     val orderID: Int,
 )

@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "Rezept")
 data class Recipe(
     @PrimaryKey(autoGenerate = true) val r_id: Int,
-    val name: String,
-    val dauer: Int?,
-    val zubereitung: String?,
+    var name: String,
+    var dauer: Int?,
+    var zubereitung: String?,
     val bild: ByteArray?,
 )
