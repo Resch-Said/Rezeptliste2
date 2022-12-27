@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -114,10 +115,10 @@ fun ComposeCookingRecipeTab() {
 
             onIngredientClick = {
                 currentIngredient = ingredientController.getByName(it)!!
-
+                Log.i("ComposeCookingRecipeTab", "onIngredientClick: $currentIngredient")
             },
             onValueChangeRecipeName = {
-               newRecipe = newRecipe.copy(name = it)
+                newRecipe = newRecipe.copy(name = it)
             },
             onValueChangeRecipeDuration = {
                 newRecipe = newRecipe.copy(dauer = it.toInt())
@@ -160,7 +161,10 @@ fun ComposeRecipeCardDetailView(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        ComposeRecipeCardDetailViewIngredientList(recipe = recipe)
+        ComposeRecipeCardDetailViewIngredientList(
+            recipe = recipe,
+            onIngredientClick = onIngredientClick
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         ComposeRecipeCardDetailViewInstructionList(
@@ -228,7 +232,8 @@ fun ComposeTableCell(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalTextStyle.current,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onClick: (String) -> Unit = {}
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -236,13 +241,14 @@ fun ComposeTableCell(
     ComposeTextEditable(
         text = text, modifier = modifier.border(1.dp, Color.Black), onDone = {
             focusManager.clearFocus()
-        }, textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange
+        }, textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange,
+        onClick = onClick
     )
 
 }
 
 @Composable
-fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
+fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe, onIngredientClick: (String) -> Unit) {
 
     val recipeController = RecipeController(LocalContext.current)
 
@@ -289,7 +295,7 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe) {
 
         ingredients.forEach {
             Row {
-                ComposeTableCell(text = it.name,
+                ComposeTableCell(text = it.name, onClick = onIngredientClick,
                     modifier = Modifier.weight(1f),
                     onValueChange = {/* TODO */ })
 
@@ -351,13 +357,27 @@ fun ComposeTextEditable(
         imeAction = ImeAction.Done,
     ),
     textStyle: TextStyle = LocalTextStyle.current,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onClick: (String) -> Unit = {}
 ) {
+
+    // To make TextFields clickable, we have to set enabled to false
+    // TODO : onClick, make it editable and change focus
+
+    val focusManager = LocalFocusManager.current
+    var enabled by remember { mutableStateOf(false) }
 
     BasicTextField(
         value = text,
-        onValueChange = onValueChange,
-        modifier = modifier.width(intrinsicSize = IntrinsicSize.Min),
+        onValueChange = onValueChange, enabled = enabled,
+        modifier = modifier
+            .width(intrinsicSize = IntrinsicSize.Min)
+            .clickable {
+                Log.i("ComposeTextEditable", "Clicked")
+                enabled = true
+
+               onClick(text)
+            },
         textStyle = textStyle.copy(fontSize = 16.sp),
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
