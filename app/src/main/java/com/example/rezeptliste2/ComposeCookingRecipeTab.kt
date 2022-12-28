@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,7 +90,7 @@ fun ComposeCookingRecipeTab() {
             )
         )
     }
-    var currentIngredient by remember { mutableStateOf(recipeIngredients[0]) }
+    var currentIngredient by remember { mutableStateOf(Ingredient(0, "test", false, 0)) }
 
     if (openRecipeDetailView.second) {
 
@@ -101,31 +100,39 @@ fun ComposeCookingRecipeTab() {
         val oldRecipe = openRecipeDetailView.first
         var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
 
-
         ComposeRecipeCardDetailView(
-            recipe = newRecipe, recipeIngredients = recipeIngredients,
+            recipe = newRecipe,
             onDone = {
                 // TODO: Update Recipe
+                // TODO: ComposeTableCells können zusätzlich eine feste ID bekommen. Diese wird benötigt, um die richtige Menge einer Zutat ändern zu können. Heißt, die Menge würde als ID die ID der zugehörigen Zutat bekommen.
+                // TODO: Daten die geändert werden (Wie zum Beispiel currentIngredient) werden in einer Liste gespeichert. Diese Liste wird dann an die Datenbank weitergegeben und dort geändert.
+                // TODO: Das selbe mit der Menge. Der Header und Instruction teil ist einfach, da sich die Daten alle in einem Objekt befinden.
+                
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
             onBack = {
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
+            recipeIngredients = recipeIngredients,
 
             onIngredientClick = {
                 currentIngredient = ingredientController.getByName(it)!!
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $currentIngredient")
             },
+
             onValueChangeRecipeName = {
                 newRecipe = newRecipe.copy(name = it)
             },
+
             onValueChangeRecipeDuration = {
                 newRecipe = newRecipe.copy(dauer = it.toInt())
             },
+
             onValueChangeRecipeInstruction = {
                 newRecipe = newRecipe.copy(zubereitung = it)
             },
+            currentIngredient = currentIngredient,
         )
     }
 }
@@ -140,6 +147,7 @@ fun ComposeRecipeCardDetailView(
     onValueChangeRecipeName: (String) -> Unit,
     onValueChangeRecipeDuration: (String) -> Unit,
     onValueChangeRecipeInstruction: (String) -> Unit,
+    currentIngredient: Ingredient,
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -163,7 +171,8 @@ fun ComposeRecipeCardDetailView(
 
         ComposeRecipeCardDetailViewIngredientList(
             recipe = recipe,
-            onIngredientClick = onIngredientClick
+            onIngredientClick = onIngredientClick,
+            currentIngredient = currentIngredient
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -206,20 +215,27 @@ fun ComposeRecipeCardDetailViewHeader(
         ) {
             Row {
                 Text(text = "Name: ")
-                ComposeTextEditable(text = recipe.name, onDone = {
-                    focusManager.clearFocus()
-                }, onValueChange = onValueChangeRecipeName)
+                ComposeTextEditable(
+                    text = recipe.name,
+                    onDone = {
+                        focusManager.clearFocus()
+                    },
+                    onValueChange = onValueChangeRecipeName,
+                )
             }
 
             Row {
                 Text(text = "Duration: ")
 
                 ComposeTextEditable(
-                    text = "${recipe.dauer}", onDone = {
+                    text = "${recipe.dauer}",
+                    onDone = {
                         focusManager.clearFocus()
-                    }, keyboardOptions = KeyboardOptions(
+                    },
+                    keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
-                    ), onValueChange = onValueChangeRecipeDuration
+                    ),
+                    onValueChange = onValueChangeRecipeDuration,
                 )
                 Text(text = " Minutes")
             }
@@ -233,22 +249,27 @@ fun ComposeTableCell(
     modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalTextStyle.current,
     onValueChange: (String) -> Unit,
+    enabled: Boolean = false,
     onClick: (String) -> Unit = {}
 ) {
 
     val focusManager = LocalFocusManager.current
 
     ComposeTextEditable(
-        text = text, modifier = modifier.border(1.dp, Color.Black), onDone = {
+        text = text, modifier = modifier.border(1.dp, Color.Black), enabled = enabled,
+        onDone = {
             focusManager.clearFocus()
-        }, textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange,
-        onClick = onClick
+        },
+        textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange,
+        onClick = onClick,
     )
 
 }
 
 @Composable
-fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe, onIngredientClick: (String) -> Unit) {
+fun ComposeRecipeCardDetailViewIngredientList(
+    recipe: Recipe, onIngredientClick: (String) -> Unit, currentIngredient: Ingredient
+) {
 
     val recipeController = RecipeController(LocalContext.current)
 
@@ -295,7 +316,9 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe, onIngredientClick:
 
         ingredients.forEach {
             Row {
-                ComposeTableCell(text = it.name, onClick = onIngredientClick,
+                ComposeTableCell(text = it.name,
+                    enabled = it.name == currentIngredient.name,
+                    onClick = onIngredientClick,
                     modifier = Modifier.weight(1f),
                     onValueChange = {/* TODO */ })
 
@@ -306,11 +329,8 @@ fun ComposeRecipeCardDetailViewIngredientList(recipe: Recipe, onIngredientClick:
                         onValueChange = {/* TODO */ })
                 } else {
                     ComposeTableCell(text = recipeController.getRecipeIngredientAmount(
-                        recipe,
-                        it
-                    )!!,
-                        modifier = Modifier.weight(1f),
-                        onValueChange = {/* TODO */ })
+                        recipe, it
+                    )!!, modifier = Modifier.weight(1f), onValueChange = {/* TODO */ })
                 }
             }
         }
@@ -342,7 +362,7 @@ fun ComposeRecipeCardDetailViewInstructionList(
                     focusManager.clearFocus()
                 },
                 textStyle = TextStyle(textAlign = TextAlign.Justify),
-                onValueChange = onValueChangeRecipeInstruction
+                onValueChange = onValueChangeRecipeInstruction,
             )
         }
     }
@@ -358,6 +378,7 @@ fun ComposeTextEditable(
     ),
     textStyle: TextStyle = LocalTextStyle.current,
     onValueChange: (String) -> Unit,
+    enabled: Boolean = true,
     onClick: (String) -> Unit = {}
 ) {
 
@@ -365,18 +386,16 @@ fun ComposeTextEditable(
     // TODO : onClick, make it editable and change focus
 
     val focusManager = LocalFocusManager.current
-    var enabled by remember { mutableStateOf(false) }
 
     BasicTextField(
         value = text,
-        onValueChange = onValueChange, enabled = enabled,
+        onValueChange = onValueChange,
+        enabled = enabled,
         modifier = modifier
             .width(intrinsicSize = IntrinsicSize.Min)
             .clickable {
                 Log.i("ComposeTextEditable", "Clicked")
-                enabled = true
-
-               onClick(text)
+                onClick(text)
             },
         textStyle = textStyle.copy(fontSize = 16.sp),
         keyboardOptions = keyboardOptions,
