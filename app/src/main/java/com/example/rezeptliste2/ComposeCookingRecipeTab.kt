@@ -83,20 +83,18 @@ fun ComposeCookingRecipeTab() {
         }
     }
 
-    var recipeIngredients by remember {
-        mutableStateOf(
-            recipeController.getRecipeIngredients(
-                openRecipeDetailView.first
-            )
-        )
-    }
     var selectedIngredient by remember { mutableStateOf(Ingredient(0, "test", false, 0)) }
 
     if (openRecipeDetailView.second) {
 
-        // TODO : provide all necessary data to the recipe detail view
+        var recipeIngredients by remember {
+            mutableStateOf(
+                recipeController.getRecipeIngredients(
+                    openRecipeDetailView.first
+                )
+            )
+        }
 
-        recipeIngredients = recipeController.getRecipeIngredients(openRecipeDetailView.first)
         val oldRecipe = openRecipeDetailView.first
         var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
         var selectedAmountIngredient by remember { mutableStateOf(ComposeTextEditableMetadata()) }
@@ -118,8 +116,30 @@ fun ComposeCookingRecipeTab() {
             recipeIngredients = recipeIngredients,
 
             onIngredientClick = {
+
+                // TODO: Zutat sollte anhand seiner ID gefunden werden, da sich der Text durch den Nutzer veränderbar ist.
+
                 selectedIngredient = ingredientController.getByName(it.text)!!
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
+            },
+            onValueChangeIngredient = {
+                Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
+
+                var newIngredient = selectedIngredient.copy()
+                newIngredient.name = it
+
+                var i = 0
+                while (i < recipeIngredients.size) {
+                    if (recipeIngredients[i].z_id == selectedIngredient.z_id) {
+                        recipeIngredients = recipeIngredients.toMutableList().apply {
+                            set(i, newIngredient)
+                        }
+                        break
+                    }
+                    i++
+                }
+
+
             },
 
             onAmountClick = {
@@ -155,6 +175,7 @@ fun ComposeRecipeCardDetailView(
     onValueChangeRecipeInstruction: (String) -> Unit,
     selectedIngredient: Ingredient,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
+    onValueChangeIngredient: (String) -> Unit,
     selectedAmountIngredient: ComposeTextEditableMetadata
 ) {
 
@@ -182,7 +203,9 @@ fun ComposeRecipeCardDetailView(
             onIngredientClick = onIngredientClick,
             selectedIngredient = selectedIngredient,
             onAmountClick = onAmountClick,
-            selectedAmountIngredient = selectedAmountIngredient, ingredients = recipeIngredients
+            onValueChangeIngredient = onValueChangeIngredient,
+            selectedAmountIngredient = selectedAmountIngredient,
+            ingredients = recipeIngredients
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -289,7 +312,8 @@ fun ComposeRecipeCardDetailViewIngredientList(
     selectedIngredient: Ingredient,
     selectedAmountIngredient: ComposeTextEditableMetadata,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
-    ingredients: List<Ingredient>
+    ingredients: List<Ingredient>,
+    onValueChangeIngredient: (String) -> Unit
 ) {
 
     val recipeController = RecipeController(LocalContext.current)
@@ -335,11 +359,13 @@ fun ComposeRecipeCardDetailViewIngredientList(
 
         ingredients.forEach {
             Row {
-                ComposeTableCell(text = it.name,
+                ComposeTableCell(
+                    text = it.name,
                     enabled = it.name == selectedIngredient.name,
                     onClick = onIngredientClick,
                     modifier = Modifier.weight(1f),
-                    onValueChange = {/* TODO */ })
+                    onValueChange = onValueChangeIngredient
+                )
 
                 if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
                     ComposeTableCell(text = "not defined",
