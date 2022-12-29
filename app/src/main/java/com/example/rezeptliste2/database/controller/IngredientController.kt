@@ -30,6 +30,10 @@ class IngredientController(context: Context) {
         return zutatDao.getByName(ingredient)
     }
 
+    fun getByID(id: Int): Ingredient? {
+        return zutatDao.getByID(id)
+    }
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao

@@ -9,7 +9,7 @@ interface ZutatDao {
     fun getAll(): List<Ingredient>
 
     @Query("SELECT * FROM zutat WHERE z_id LIKE :zutatId LIMIT 1")
-    fun getByID(zutatId: Int): Ingredient
+    fun getByID(zutatId: Int): Ingredient?
 
     @Query("SELECT * FROM zutat WHERE name LIKE :name LIMIT 1")
     fun getByName(name: String): Ingredient?

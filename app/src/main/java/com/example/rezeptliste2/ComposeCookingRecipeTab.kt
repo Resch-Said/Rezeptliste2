@@ -104,9 +104,7 @@ fun ComposeCookingRecipeTab() {
             selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
-                // TODO: Daten die geändert werden (Wie zum Beispiel selectedIngredient) werden in einer Liste gespeichert. Diese Liste wird dann an die Datenbank weitergegeben und dort geändert.
-                // TODO: Das selbe mit der Menge. Der Header und Instruction teil ist einfach, da sich die Daten alle in einem Objekt befinden.
-                // TODO: Änderungen in der Zutatenliste werden noch nicht angezeigt. Es fehlt also noch ein onValueChangeIngredient.
+                // TODO: onValueChangeAmount
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -117,15 +115,13 @@ fun ComposeCookingRecipeTab() {
 
             onIngredientClick = {
 
-                // TODO: Zutat sollte anhand seiner ID gefunden werden, da sich der Text durch den Nutzer veränderbar ist.
-
-                selectedIngredient = ingredientController.getByName(it.text)!!
+                selectedIngredient = ingredientController.getByID(it.id)!!
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
             },
             onValueChangeIngredient = {
                 Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
 
-                var newIngredient = selectedIngredient.copy()
+                val newIngredient = selectedIngredient.copy()
                 newIngredient.name = it
 
                 var i = 0
@@ -138,8 +134,6 @@ fun ComposeCookingRecipeTab() {
                     }
                     i++
                 }
-
-
             },
 
             onAmountClick = {
@@ -361,8 +355,9 @@ fun ComposeRecipeCardDetailViewIngredientList(
             Row {
                 ComposeTableCell(
                     text = it.name,
-                    enabled = it.name == selectedIngredient.name,
+                    enabled = it.z_id == selectedIngredient.z_id,
                     onClick = onIngredientClick,
+                    id = it.z_id,
                     modifier = Modifier.weight(1f),
                     onValueChange = onValueChangeIngredient
                 )
