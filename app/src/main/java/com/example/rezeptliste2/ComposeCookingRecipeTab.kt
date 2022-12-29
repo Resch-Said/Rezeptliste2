@@ -103,14 +103,12 @@ fun ComposeCookingRecipeTab() {
 
         ComposeRecipeCardDetailView(recipe = newRecipe,
             selectedAmountIngredient = selectedAmountIngredient,
-            currentIngredient = selectedIngredient,
+            selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
-                // TODO: ComposeTableCells können zusätzlich eine feste ID bekommen. Diese wird benötigt, um die richtige Menge einer Zutat ändern zu können. Heißt, die Menge würde als ID die ID der zugehörigen Zutat bekommen.
-                // TODO: Daten die geändert werden (Wie zum Beispiel currentIngredient) werden in einer Liste gespeichert. Diese Liste wird dann an die Datenbank weitergegeben und dort geändert.
+                // TODO: Daten die geändert werden (Wie zum Beispiel selectedIngredient) werden in einer Liste gespeichert. Diese Liste wird dann an die Datenbank weitergegeben und dort geändert.
                 // TODO: Das selbe mit der Menge. Der Header und Instruction teil ist einfach, da sich die Daten alle in einem Objekt befinden.
                 // TODO: Änderungen in der Zutatenliste werden noch nicht angezeigt. Es fehlt also noch ein onValueChangeIngredient.
-
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -155,7 +153,7 @@ fun ComposeRecipeCardDetailView(
     onValueChangeRecipeName: (String) -> Unit,
     onValueChangeRecipeDuration: (String) -> Unit,
     onValueChangeRecipeInstruction: (String) -> Unit,
-    currentIngredient: Ingredient,
+    selectedIngredient: Ingredient,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
     selectedAmountIngredient: ComposeTextEditableMetadata
 ) {
@@ -182,7 +180,7 @@ fun ComposeRecipeCardDetailView(
         ComposeRecipeCardDetailViewIngredientList(
             recipe = recipe,
             onIngredientClick = onIngredientClick,
-            currentIngredient = currentIngredient,
+            selectedIngredient = selectedIngredient,
             onAmountClick = onAmountClick,
             selectedAmountIngredient = selectedAmountIngredient, ingredients = recipeIngredients
         )
@@ -288,7 +286,7 @@ fun ComposeTableCell(
 fun ComposeRecipeCardDetailViewIngredientList(
     recipe: Recipe,
     onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
-    currentIngredient: Ingredient,
+    selectedIngredient: Ingredient,
     selectedAmountIngredient: ComposeTextEditableMetadata,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
     ingredients: List<Ingredient>
@@ -338,7 +336,7 @@ fun ComposeRecipeCardDetailViewIngredientList(
         ingredients.forEach {
             Row {
                 ComposeTableCell(text = it.name,
-                    enabled = it.name == currentIngredient.name,
+                    enabled = it.name == selectedIngredient.name,
                     onClick = onIngredientClick,
                     modifier = Modifier.weight(1f),
                     onValueChange = {/* TODO */ })
