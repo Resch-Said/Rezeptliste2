@@ -90,7 +90,7 @@ fun ComposeCookingRecipeTab() {
             )
         )
     }
-    var currentIngredient by remember { mutableStateOf(Ingredient(0, "test", false, 0)) }
+    var selectedIngredient by remember { mutableStateOf(Ingredient(0, "test", false, 0)) }
 
     if (openRecipeDetailView.second) {
 
@@ -99,15 +99,18 @@ fun ComposeCookingRecipeTab() {
         recipeIngredients = recipeController.getRecipeIngredients(openRecipeDetailView.first)
         val oldRecipe = openRecipeDetailView.first
         var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
+        var selectedAmountIngredient by remember { mutableStateOf(ComposeTextEditableMetadata()) }
 
-        ComposeRecipeCardDetailView(
-            recipe = newRecipe,
+        ComposeRecipeCardDetailView(recipe = newRecipe,
+            selectedAmountIngredient = selectedAmountIngredient,
+            currentIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
                 // TODO: ComposeTableCells können zusätzlich eine feste ID bekommen. Diese wird benötigt, um die richtige Menge einer Zutat ändern zu können. Heißt, die Menge würde als ID die ID der zugehörigen Zutat bekommen.
                 // TODO: Daten die geändert werden (Wie zum Beispiel currentIngredient) werden in einer Liste gespeichert. Diese Liste wird dann an die Datenbank weitergegeben und dort geändert.
                 // TODO: Das selbe mit der Menge. Der Header und Instruction teil ist einfach, da sich die Daten alle in einem Objekt befinden.
-                
+                // TODO: Änderungen in der Zutatenliste werden noch nicht angezeigt. Es fehlt also noch ein onValueChangeIngredient.
+
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -117,8 +120,13 @@ fun ComposeCookingRecipeTab() {
             recipeIngredients = recipeIngredients,
 
             onIngredientClick = {
-                currentIngredient = ingredientController.getByName(it)!!
-                Log.i("ComposeCookingRecipeTab", "onIngredientClick: $currentIngredient")
+                selectedIngredient = ingredientController.getByName(it.text)!!
+                Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
+            },
+
+            onAmountClick = {
+                selectedAmountIngredient = it
+                Log.i("ComposeCookingRecipeTab", "onAmountClick: $selectedAmountIngredient")
             },
 
             onValueChangeRecipeName = {
@@ -131,8 +139,8 @@ fun ComposeCookingRecipeTab() {
 
             onValueChangeRecipeInstruction = {
                 newRecipe = newRecipe.copy(zubereitung = it)
-            },
-            currentIngredient = currentIngredient,
+            }
+
         )
     }
 }
@@ -143,11 +151,13 @@ fun ComposeRecipeCardDetailView(
     onDone: () -> Unit,
     onBack: () -> Unit,
     recipeIngredients: List<Ingredient>,
-    onIngredientClick: (String) -> Unit,
+    onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
     onValueChangeRecipeName: (String) -> Unit,
     onValueChangeRecipeDuration: (String) -> Unit,
     onValueChangeRecipeInstruction: (String) -> Unit,
     currentIngredient: Ingredient,
+    onAmountClick: (ComposeTextEditableMetadata) -> Unit,
+    selectedAmountIngredient: ComposeTextEditableMetadata
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -172,7 +182,9 @@ fun ComposeRecipeCardDetailView(
         ComposeRecipeCardDetailViewIngredientList(
             recipe = recipe,
             onIngredientClick = onIngredientClick,
-            currentIngredient = currentIngredient
+            currentIngredient = currentIngredient,
+            onAmountClick = onAmountClick,
+            selectedAmountIngredient = selectedAmountIngredient
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -250,30 +262,40 @@ fun ComposeTableCell(
     textStyle: TextStyle = LocalTextStyle.current,
     onValueChange: (String) -> Unit,
     enabled: Boolean = false,
-    onClick: (String) -> Unit = {}
+    id: Int = 0,
+    onClick: (ComposeTextEditableMetadata) -> Unit = {},
 ) {
 
     val focusManager = LocalFocusManager.current
 
+
     ComposeTextEditable(
-        text = text, modifier = modifier.border(1.dp, Color.Black), enabled = enabled,
+        text = text,
+        modifier = modifier.border(1.dp, Color.Black),
+        enabled = enabled,
+        id = id,
         onDone = {
             focusManager.clearFocus()
         },
-        textStyle = textStyle.copy(textAlign = TextAlign.Center), onValueChange = onValueChange,
-        onClick = onClick,
+        textStyle = textStyle.copy(textAlign = TextAlign.Center),
+        onValueChange = onValueChange,
+        onClick = onClick
     )
 
 }
 
 @Composable
 fun ComposeRecipeCardDetailViewIngredientList(
-    recipe: Recipe, onIngredientClick: (String) -> Unit, currentIngredient: Ingredient
+    recipe: Recipe,
+    onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
+    currentIngredient: Ingredient,
+    selectedAmountIngredient: ComposeTextEditableMetadata,
+    onAmountClick: (ComposeTextEditableMetadata) -> Unit
 ) {
 
     val recipeController = RecipeController(LocalContext.current)
 
-    var ingredients by remember { mutableStateOf(recipeController.getRecipeIngredients(recipe)) }
+    val ingredients by remember { mutableStateOf(recipeController.getRecipeIngredients(recipe)) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -325,12 +347,22 @@ fun ComposeRecipeCardDetailViewIngredientList(
                 if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
                     ComposeTableCell(text = "not defined",
                         modifier = Modifier.weight(1f),
+                        onClick = onAmountClick,
+                        id = it.z_id,
+                        enabled = it.z_id == selectedAmountIngredient.id,
                         textStyle = TextStyle(color = Color.Red),
                         onValueChange = {/* TODO */ })
                 } else {
-                    ComposeTableCell(text = recipeController.getRecipeIngredientAmount(
-                        recipe, it
-                    )!!, modifier = Modifier.weight(1f), onValueChange = {/* TODO */ })
+                    ComposeTableCell(
+                        text = recipeController.getRecipeIngredientAmount(
+                            recipe, it
+                        )!!,
+                        modifier = Modifier.weight(1f),
+                        onValueChange = {/* TODO */ },
+                        onClick = onAmountClick,
+                        id = it.z_id,
+                        enabled = it.z_id == selectedAmountIngredient.id
+                    )
                 }
             }
         }
@@ -379,11 +411,9 @@ fun ComposeTextEditable(
     textStyle: TextStyle = LocalTextStyle.current,
     onValueChange: (String) -> Unit,
     enabled: Boolean = true,
-    onClick: (String) -> Unit = {}
+    id: Int = 0,
+    onClick: (ComposeTextEditableMetadata) -> Unit = {}
 ) {
-
-    // To make TextFields clickable, we have to set enabled to false
-    // TODO : onClick, make it editable and change focus
 
     val focusManager = LocalFocusManager.current
 
@@ -395,7 +425,8 @@ fun ComposeTextEditable(
             .width(intrinsicSize = IntrinsicSize.Min)
             .clickable {
                 Log.i("ComposeTextEditable", "Clicked")
-                onClick(text)
+
+                onClick(ComposeTextEditableMetadata(text, id))
             },
         textStyle = textStyle.copy(fontSize = 16.sp),
         keyboardOptions = keyboardOptions,
