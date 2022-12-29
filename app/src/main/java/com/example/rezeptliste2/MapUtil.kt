@@ -63,4 +63,9 @@ class MapUtil(private var map: Map<Ingredient, String>) {
 
         return newMap
     }
+
+    fun setValue(ingredient: Ingredient?, it: String) {
+        map = map.toMutableMap().apply { put(ingredient!!, it) }
+
+    }
 }

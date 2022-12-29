@@ -111,7 +111,6 @@ fun ComposeCookingRecipeTab() {
             selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
-                // TODO: onValueChangeAmount
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -144,8 +143,11 @@ fun ComposeCookingRecipeTab() {
             onValueChangeAmount = {
                 Log.i("ComposeCookingRecipeTab", "onValueChangeAmount: $it")
 
-                selectedIngredientAmount = selectedIngredientAmount.copy(text = it)
+                val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
 
+                recipeIngredientsAmount.setValue(ingredient, it)
+
+                selectedIngredientAmount = selectedIngredientAmount.copy(text = it)
             },
 
             onValueChangeRecipeName = {
