@@ -184,7 +184,7 @@ fun ComposeRecipeCardDetailView(
             onIngredientClick = onIngredientClick,
             currentIngredient = currentIngredient,
             onAmountClick = onAmountClick,
-            selectedAmountIngredient = selectedAmountIngredient
+            selectedAmountIngredient = selectedAmountIngredient, ingredients = recipeIngredients
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -290,12 +290,11 @@ fun ComposeRecipeCardDetailViewIngredientList(
     onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
     currentIngredient: Ingredient,
     selectedAmountIngredient: ComposeTextEditableMetadata,
-    onAmountClick: (ComposeTextEditableMetadata) -> Unit
+    onAmountClick: (ComposeTextEditableMetadata) -> Unit,
+    ingredients: List<Ingredient>
 ) {
 
     val recipeController = RecipeController(LocalContext.current)
-
-    val ingredients by remember { mutableStateOf(recipeController.getRecipeIngredients(recipe)) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
