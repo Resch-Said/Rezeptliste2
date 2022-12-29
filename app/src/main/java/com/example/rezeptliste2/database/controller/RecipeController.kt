@@ -47,6 +47,17 @@ class RecipeController(context: Context) {
         rezeptDao.updateRecipe(newRecipe)
     }
 
+    fun getRecipeIngredientAmounts(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
+
+        val amounts: MutableList<String> = mutableListOf()
+
+        for (ingredient in ingredients) {
+            amounts += rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id) ?: "not defined"
+        }
+
+        return amounts
+    }
+
 
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao

@@ -52,7 +52,7 @@ fun ComposeCookingRecipeTab() {
     var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
     var openRecipeDetailView by remember {
         mutableStateOf(
-            Pair<Recipe, Boolean>(
+            Pair(
                 recipes[0], false
             )
         )
@@ -87,20 +87,27 @@ fun ComposeCookingRecipeTab() {
 
     if (openRecipeDetailView.second) {
 
-        var recipeIngredients by remember {
-            mutableStateOf(
-                recipeController.getRecipeIngredients(
-                    openRecipeDetailView.first
-                )
-            )
-        }
+        val recipeIngredients = recipeController.getRecipeIngredients(
+            openRecipeDetailView.first
+        )
+
+        val recipeAmounts = recipeController.getRecipeIngredientAmounts(
+            openRecipeDetailView.first, recipeIngredients
+        )
 
         val oldRecipe = openRecipeDetailView.first
         var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
-        var selectedAmountIngredient by remember { mutableStateOf(ComposeTextEditableMetadata()) }
+        var selectedIngredientAmount by remember { mutableStateOf(ComposeTextEditableMetadata()) }
+
+        var recipeIngredientsAmount by remember {
+            mutableStateOf(
+                MapUtil(recipeIngredients.zip(recipeAmounts).toMap())
+            )
+        }
 
         ComposeRecipeCardDetailView(recipe = newRecipe,
-            selectedAmountIngredient = selectedAmountIngredient,
+            recipeIngredientsAmount = recipeIngredientsAmount,
+            selectedIngredientAmount = selectedIngredientAmount,
             selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
@@ -111,7 +118,6 @@ fun ComposeCookingRecipeTab() {
             onBack = {
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
-            recipeIngredients = recipeIngredients,
 
             onIngredientClick = {
 
@@ -124,21 +130,22 @@ fun ComposeCookingRecipeTab() {
                 val newIngredient = selectedIngredient.copy()
                 newIngredient.name = it
 
-                var i = 0
-                while (i < recipeIngredients.size) {
-                    if (recipeIngredients[i].z_id == selectedIngredient.z_id) {
-                        recipeIngredients = recipeIngredients.toMutableList().apply {
-                            set(i, newIngredient)
-                        }
-                        break
-                    }
-                    i++
-                }
+                recipeIngredientsAmount =
+                    recipeIngredientsAmount.replaceKey(selectedIngredient, newIngredient)
+
+                selectedIngredient = newIngredient
             },
 
             onAmountClick = {
-                selectedAmountIngredient = it
-                Log.i("ComposeCookingRecipeTab", "onAmountClick: $selectedAmountIngredient")
+                selectedIngredientAmount = it
+                Log.i("ComposeCookingRecipeTab", "onAmountClick: $selectedIngredientAmount")
+            },
+
+            onValueChangeAmount = {
+                Log.i("ComposeCookingRecipeTab", "onValueChangeAmount: $it")
+
+                selectedIngredientAmount = selectedIngredientAmount.copy(text = it)
+
             },
 
             onValueChangeRecipeName = {
@@ -162,7 +169,6 @@ fun ComposeRecipeCardDetailView(
     recipe: Recipe,
     onDone: () -> Unit,
     onBack: () -> Unit,
-    recipeIngredients: List<Ingredient>,
     onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
     onValueChangeRecipeName: (String) -> Unit,
     onValueChangeRecipeDuration: (String) -> Unit,
@@ -170,7 +176,9 @@ fun ComposeRecipeCardDetailView(
     selectedIngredient: Ingredient,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
     onValueChangeIngredient: (String) -> Unit,
-    selectedAmountIngredient: ComposeTextEditableMetadata
+    selectedIngredientAmount: ComposeTextEditableMetadata,
+    recipeIngredientsAmount: MapUtil,
+    onValueChangeAmount: (String) -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -193,13 +201,13 @@ fun ComposeRecipeCardDetailView(
         Spacer(modifier = Modifier.height(16.dp))
 
         ComposeRecipeCardDetailViewIngredientList(
-            recipe = recipe,
+            recipeIngredientsAmount = recipeIngredientsAmount,
             onIngredientClick = onIngredientClick,
             selectedIngredient = selectedIngredient,
             onAmountClick = onAmountClick,
             onValueChangeIngredient = onValueChangeIngredient,
-            selectedAmountIngredient = selectedAmountIngredient,
-            ingredients = recipeIngredients
+            selectedIngredientAmount = selectedIngredientAmount,
+            onValueChangeAmount = onValueChangeAmount,
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -283,7 +291,6 @@ fun ComposeTableCell(
 
     val focusManager = LocalFocusManager.current
 
-
     ComposeTextEditable(
         text = text,
         modifier = modifier.border(1.dp, Color.Black),
@@ -301,16 +308,14 @@ fun ComposeTableCell(
 
 @Composable
 fun ComposeRecipeCardDetailViewIngredientList(
-    recipe: Recipe,
     onIngredientClick: (ComposeTextEditableMetadata) -> Unit,
     selectedIngredient: Ingredient,
-    selectedAmountIngredient: ComposeTextEditableMetadata,
+    selectedIngredientAmount: ComposeTextEditableMetadata,
     onAmountClick: (ComposeTextEditableMetadata) -> Unit,
-    ingredients: List<Ingredient>,
-    onValueChangeIngredient: (String) -> Unit
+    recipeIngredientsAmount: MapUtil,
+    onValueChangeIngredient: (String) -> Unit,
+    onValueChangeAmount: (String) -> Unit
 ) {
-
-    val recipeController = RecipeController(LocalContext.current)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -328,7 +333,6 @@ fun ComposeRecipeCardDetailViewIngredientList(
         )
 
         Row {
-
             Text(
                 text = "Ingredient",
                 modifier = Modifier
@@ -348,10 +352,9 @@ fun ComposeRecipeCardDetailViewIngredientList(
                     .weight(1f),
                 textAlign = TextAlign.Center,
             )
-
         }
 
-        ingredients.forEach {
+        recipeIngredientsAmount.getKeys().forEach {
             Row {
                 ComposeTableCell(
                     text = it.name,
@@ -362,26 +365,14 @@ fun ComposeRecipeCardDetailViewIngredientList(
                     onValueChange = onValueChangeIngredient
                 )
 
-                if (recipeController.getRecipeIngredientAmount(recipe, it) == null) {
-                    ComposeTableCell(text = "not defined",
-                        modifier = Modifier.weight(1f),
-                        onClick = onAmountClick,
-                        id = it.z_id,
-                        enabled = it.z_id == selectedAmountIngredient.id,
-                        textStyle = TextStyle(color = Color.Red),
-                        onValueChange = {/* TODO */ })
-                } else {
-                    ComposeTableCell(
-                        text = recipeController.getRecipeIngredientAmount(
-                            recipe, it
-                        )!!,
-                        modifier = Modifier.weight(1f),
-                        onValueChange = {/* TODO */ },
-                        onClick = onAmountClick,
-                        id = it.z_id,
-                        enabled = it.z_id == selectedAmountIngredient.id
-                    )
-                }
+                ComposeTableCell(
+                    text = recipeIngredientsAmount.getValue(it) ?: "not defined",
+                    modifier = Modifier.weight(1f),
+                    onValueChange = onValueChangeAmount,
+                    onClick = onAmountClick,
+                    id = it.z_id,
+                    enabled = it.z_id == selectedIngredientAmount.id
+                )
             }
         }
     }
