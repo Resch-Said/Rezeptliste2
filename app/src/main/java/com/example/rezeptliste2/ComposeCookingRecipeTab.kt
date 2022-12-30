@@ -131,6 +131,8 @@ fun ComposeCookingRecipeTab() {
                 selectedIngredient = Ingredient(0, "test", false, 0)
 
                 recipeController.updateRecipe(selectedRecipe)
+                
+
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -186,7 +188,10 @@ fun ComposeCookingRecipeTab() {
             },
 
             onValueChangeRecipeDuration = {
-                selectedRecipe = selectedRecipe.copy(dauer = it.toInt())
+
+                if (it.toIntOrNull() != null) {
+                    selectedRecipe = selectedRecipe.copy(dauer = it.toInt())
+                }
             },
 
             onValueChangeRecipeInstruction = {
@@ -296,7 +301,7 @@ fun ComposeRecipeCardDetailViewHeader(
                 Text(text = "Duration: ")
 
                 ComposeTextEditable(
-                    text = "${recipe.dauer}",
+                    text = recipe.dauer.toString(),
                     onDone = {
                         focusManager.clearFocus()
                     },
@@ -428,17 +433,14 @@ fun ComposeRecipeCardDetailViewInstructionList(
             modifier = Modifier.fillMaxWidth()
         )
 
-        recipe.zubereitung?.let {
-            ComposeTextEditable(
-                text = it,
-                onDone = {
-
-                    focusManager.clearFocus()
-                },
-                textStyle = TextStyle(textAlign = TextAlign.Justify),
-                onValueChange = onValueChangeRecipeInstruction,
-            )
-        }
+        ComposeTextEditable(
+            text = recipe.zubereitung.toString(),
+            onDone = {
+                focusManager.clearFocus()
+            },
+            //textStyle = TextStyle(textAlign = TextAlign.Justify),
+            onValueChange = onValueChangeRecipeInstruction,
+        )
     }
 }
 
@@ -456,8 +458,6 @@ fun ComposeTextEditable(
     id: Int = 0,
     onClick: (ComposeTextEditableMetadata) -> Unit = {}
 ) {
-
-    val focusManager = LocalFocusManager.current
 
     BasicTextField(
         value = text,
