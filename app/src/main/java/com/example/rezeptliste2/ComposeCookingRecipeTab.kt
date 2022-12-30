@@ -152,6 +152,11 @@ fun ComposeCookingRecipeTab() {
                     recipeIngredientsAmount.replaceKey(selectedIngredient, newIngredient)
 
                 selectedIngredient = newIngredient
+
+                if (selectedIngredient.name == "") {
+                    recipeIngredientsAmount.remove(selectedIngredient)
+                }
+
             },
 
             onAmountClick = {
