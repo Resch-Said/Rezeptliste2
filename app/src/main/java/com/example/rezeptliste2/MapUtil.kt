@@ -74,4 +74,8 @@ class MapUtil(private var map: Map<Ingredient, String>) {
     fun getLastKey(): Ingredient {
         return map.keys.last()
     }
+
+    fun popLast() {
+        map = map.toMutableMap().apply { remove(map.keys.last()) }
+    }
 }

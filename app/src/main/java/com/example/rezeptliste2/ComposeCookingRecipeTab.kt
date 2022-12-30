@@ -106,7 +106,9 @@ fun ComposeCookingRecipeTab() {
         }
 
         if (recipeIngredientsAmount.getLastKey().name != "") {
+
             var lastIngredientID = ingredientController.getLastID() + 1
+
             while (lastIngredientID <= recipeIngredientsAmount.getLastKey().z_id) {
                 lastIngredientID++
             }
@@ -125,6 +127,8 @@ fun ComposeCookingRecipeTab() {
             onDone = {
                 // TODO: Update Recipe
                 // TODO: Wenn die letzte Zeile in den Zutaten leer ist, dann wird diese vorher noch entfernt
+
+                recipeIngredientsAmount.popLast()
 
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
