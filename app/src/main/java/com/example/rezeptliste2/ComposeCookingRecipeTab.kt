@@ -59,6 +59,7 @@ fun ComposeCookingRecipeTab() {
     }
 
     if (!openRecipeDetailView.second) {
+        recipes = recipeController.getAllRecipes()
 
         Column {
             LazyVerticalGrid(cells = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
@@ -95,8 +96,8 @@ fun ComposeCookingRecipeTab() {
             openRecipeDetailView.first, recipeIngredients
         )
 
-        val oldRecipe = openRecipeDetailView.first
-        var newRecipe by remember { mutableStateOf(oldRecipe.copy()) }
+
+        var selectedRecipe by remember { mutableStateOf(openRecipeDetailView.first.copy()) }
         var selectedIngredientAmount by remember { mutableStateOf(ComposeTextEditableMetadata()) }
 
         var recipeIngredientsAmount by remember {
@@ -120,7 +121,7 @@ fun ComposeCookingRecipeTab() {
             )
         }
 
-        ComposeRecipeCardDetailView(recipe = newRecipe,
+        ComposeRecipeCardDetailView(recipe = selectedRecipe,
             recipeIngredientsAmount = recipeIngredientsAmount,
             selectedIngredientAmount = selectedIngredientAmount,
             selectedIngredient = selectedIngredient,
@@ -129,7 +130,7 @@ fun ComposeCookingRecipeTab() {
                 recipeIngredientsAmount.popLast()
                 selectedIngredient = Ingredient(0, "test", false, 0)
 
-
+                recipeController.updateRecipe(selectedRecipe)
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -181,15 +182,15 @@ fun ComposeCookingRecipeTab() {
             },
 
             onValueChangeRecipeName = {
-                newRecipe = newRecipe.copy(name = it)
+                selectedRecipe = selectedRecipe.copy(name = it)
             },
 
             onValueChangeRecipeDuration = {
-                newRecipe = newRecipe.copy(dauer = it.toInt())
+                selectedRecipe = selectedRecipe.copy(dauer = it.toInt())
             },
 
             onValueChangeRecipeInstruction = {
-                newRecipe = newRecipe.copy(zubereitung = it)
+                selectedRecipe = selectedRecipe.copy(zubereitung = it)
             }
 
         )

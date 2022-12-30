@@ -15,9 +15,8 @@ interface RecipeDao {
     @Query("SELECT * FROM rezept WHERE name LIKE :name LIMIT 1")
     fun getByName(name: String): Recipe
 
-
     @Update
-    fun updateRecipe(rezept: Recipe)
+    fun update(rezept: Recipe)
 
     @Insert
     fun insert(vararg rezept: Recipe)

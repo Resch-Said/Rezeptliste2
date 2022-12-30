@@ -41,10 +41,10 @@ class RecipeController(context: Context) {
         return recipeIngredients
     }
 
-    fun updateRecipe(newRecipe: Recipe) {
+    fun updateRecipe(recipe: Recipe) {
         // TODO: Update recipe
+        rezeptDao.update(recipe)
 
-        rezeptDao.updateRecipe(newRecipe)
     }
 
     fun getRecipeIngredientAmounts(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
