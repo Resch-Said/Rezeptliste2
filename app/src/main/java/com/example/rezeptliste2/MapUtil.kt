@@ -20,8 +20,10 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         map = map.toMutableMap().apply { remove(key) }
     }
 
-    fun put(key: Ingredient, value: String) {
+    fun put(key: Ingredient, value: String): MapUtil {
         map = map.toMutableMap().apply { put(key, value) }
+
+        return this
     }
 
     fun replaceKey(oldKey: Ingredient, newKey: Ingredient): MapUtil {
@@ -67,5 +69,9 @@ class MapUtil(private var map: Map<Ingredient, String>) {
     fun setValue(ingredient: Ingredient?, it: String) {
         map = map.toMutableMap().apply { put(ingredient!!, it) }
 
+    }
+
+    fun getLastKey(): Ingredient {
+        return map.keys.last()
     }
 }
