@@ -126,14 +126,16 @@ fun ComposeCookingRecipeTab() {
             selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
-                // TODO: Wenn die letzte Zeile in den Zutaten leer ist, dann wird diese vorher noch entfernt
-
                 recipeIngredientsAmount.popLast()
+                selectedIngredient = Ingredient(0, "test", false, 0)
+
 
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
             onBack = {
+                selectedIngredient = Ingredient(0, "test", false, 0)
+
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
 
