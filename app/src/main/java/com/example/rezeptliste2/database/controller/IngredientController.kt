@@ -34,6 +34,14 @@ class IngredientController(context: Context) {
         return zutatDao.getByID(id)
     }
 
+    fun getLastID(): Int {
+        return zutatDao.getLastID()
+    }
+
+    fun getLastOrderID(): Int {
+        return zutatDao.getLastOrderID()
+    }
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao

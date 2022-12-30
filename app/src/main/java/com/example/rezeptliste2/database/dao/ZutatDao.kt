@@ -35,6 +35,9 @@ interface ZutatDao {
     @Query("SELECT MAX(orderID) FROM zutat")
     fun getLastOrderID(): Int
 
+    @Query("SELECT MAX(z_id) FROM zutat")
+    fun getLastID(): Int
+
     @Update
     fun updateZutat(zutat: Ingredient)
 
@@ -43,6 +46,7 @@ interface ZutatDao {
 
     @Delete
     fun delete(zutat: Ingredient)
+
 
 
 }

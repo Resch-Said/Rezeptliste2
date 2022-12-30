@@ -105,12 +105,18 @@ fun ComposeCookingRecipeTab() {
             )
         }
 
+        // TODO: letze Zeile in den Zutaten muss leer sein, damit der Nutzer eine neue Zutat hinzufügen kann
+
+        recipeIngredientsAmount.put(Ingredient(ingredientController.getLastID()+1, "", false, ingredientController.getLastOrderID()), "")
+
         ComposeRecipeCardDetailView(recipe = newRecipe,
             recipeIngredientsAmount = recipeIngredientsAmount,
             selectedIngredientAmount = selectedIngredientAmount,
             selectedIngredient = selectedIngredient,
             onDone = {
                 // TODO: Update Recipe
+
+                // TODO: Wenn die letzte Zeile in den Zutaten leer ist, dann wird diese vorher noch entfernt
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },
@@ -120,10 +126,14 @@ fun ComposeCookingRecipeTab() {
 
             onIngredientClick = {
 
+                // TODO: handle new ingredients not in database
+
                 selectedIngredient = ingredientController.getByID(it.id)!!
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
             },
             onValueChangeIngredient = {
+                // TODO: Wenn die letzte Zeile bearbeitet wird, dann wird eine neue leere Zeile hinzugefügt
+
                 Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
 
                 val newIngredient = selectedIngredient.copy()
