@@ -8,6 +8,10 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         return map.keys
     }
 
+    operator fun iterator(): Iterator<Map.Entry<Ingredient, String>> {
+        return map.iterator()
+    }
+
     fun getValues(): Collection<String> {
         return map.values
     }

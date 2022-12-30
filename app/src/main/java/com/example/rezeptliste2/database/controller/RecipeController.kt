@@ -2,6 +2,7 @@ package com.example.rezeptliste2.database.controller
 
 import android.content.Context
 import androidx.room.Room
+import com.example.rezeptliste2.MapUtil
 import com.example.rezeptliste2.database.Database
 import com.example.rezeptliste2.database.dao.RecipeDao
 import com.example.rezeptliste2.database.dao.RezeptZutatDao
@@ -41,12 +42,6 @@ class RecipeController(context: Context) {
         return recipeIngredients
     }
 
-    fun updateRecipe(recipe: Recipe) {
-        // TODO: Update recipe
-        rezeptDao.update(recipe)
-
-    }
-
     fun getRecipeIngredientAmounts(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
 
         val amounts: MutableList<String> = mutableListOf()
@@ -56,6 +51,25 @@ class RecipeController(context: Context) {
         }
 
         return amounts
+    }
+
+    fun updateRecipeIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
+
+        // TODO: Zutaten aus der Datenbank entfernen, die nicht mehr in der Liste sind (RezeptZutat)
+        // TODO: Zutaten in die Datenbank hinzufügen, die in der Liste sind, aber noch nicht in der Datenbank (Zutat)
+        // TODO: Zutaten die in der liste sind, aber noch nicht in der Datenbank, müssen auch in RezeptZutat eingefügt werden (RezeptZutat)
+        // TODO: Menge der Zutaten die vorhanden sind, updaten (RezeptZutat)
+
+        rezeptDao.update(recipe)
+
+
+
+
+
+        // Das sollte am Ende sein, wenn alles sicher in der Datenbank ist.
+        for (recipeIngredient in recipeIngredientsAmount) {
+            rezeptZutatDao.updateAmount(recipeID = recipe.r_id, ingredientID = recipeIngredient.key.z_id, amount = recipeIngredient.value)
+        }
     }
 
 

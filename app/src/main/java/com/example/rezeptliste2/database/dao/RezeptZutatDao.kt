@@ -13,8 +13,8 @@ interface RezeptZutatDao {
     @Query("SELECT * FROM RezeptZutat WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID LIMIT 1")
     fun getByID(ingredientID: Int, recipeID: Int): RecipeIngredient
 
-    @Query("UPDATE RezeptZutat SET menge = :menge WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID")
-    fun updateMenge(ingredientID: Int, recipeID: Int, menge: String)
+    @Query("UPDATE RezeptZutat SET menge = :amount WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID")
+    fun updateAmount(ingredientID: Int, recipeID: Int, amount: String)
 
     @Query("SELECT * FROM RezeptZutat WHERE z_id NOT IN (SELECT z_id FROM Zutat) OR r_id NOT IN (SELECT r_id FROM Rezept)")
     fun getAllNotInZutatOrRezept(): List<RecipeIngredient>

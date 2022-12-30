@@ -130,8 +130,9 @@ fun ComposeCookingRecipeTab() {
                 recipeIngredientsAmount.popLast()
                 selectedIngredient = Ingredient(0, "test", false, 0)
 
-                recipeController.updateRecipe(selectedRecipe)
-                
+                recipeController.updateRecipeIngredients(
+                    selectedRecipe, recipeIngredientsAmount
+                )
 
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
