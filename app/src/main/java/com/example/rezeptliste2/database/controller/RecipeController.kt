@@ -10,25 +10,26 @@ import com.example.rezeptliste2.database.dao.RezeptZutatDao
 import com.example.rezeptliste2.database.dao.ZutatDao
 import com.example.rezeptliste2.database.dto.Ingredient
 import com.example.rezeptliste2.database.dto.Recipe
-import com.example.rezeptliste2.database.dto.RecipeIngredient
 
 class RecipeController(context: Context) {
     fun getAllRecipes(): List<Recipe> {
         return rezeptDao.getAll()
     }
 
-    fun getRecipeIngredients(recipe: Recipe): List<Ingredient> {
+    fun getRecipeIngredientsDB(recipe: Recipe): List<Ingredient> {
 
         return rezeptZutatDao.getRecipeIngredients(recipe.r_id)
     }
 
-    fun getRecipeIngredientsAvailable(recipe: Recipe, available: Boolean = true): List<Ingredient> {
+    fun getRecipeIngredientsAvailableDB(
+        recipe: Recipe, available: Boolean = true
+    ): List<Ingredient> {
 
         return rezeptZutatDao.getRecipeIngredientsAvailable(recipe.r_id, available)
     }
 
 
-    fun getRecipeIngredientAmounts(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
+    fun getRecipeIngredientAmountsDB(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
 
         val amounts: MutableList<String> = mutableListOf()
 
@@ -45,77 +46,101 @@ class RecipeController(context: Context) {
 
     private val ingredientController: IngredientController = IngredientController(context)
 
-    private fun deleteIngredient(recipeID: Int, ingredientID: Int) {
+    private fun deleteIngredientFromRecipeDB(recipeID: Int, ingredientID: Int) {
         val recipeIngredient = recipeIngredientController.getByID(ingredientID, recipeID)
         recipeIngredientController.delete(recipeIngredient)
     }
 
-    private fun updateIngredient(recipeID: Int, ingredientID: Int, amount: String?) {
+    private fun updateIngredientDB(recipeID: Int, ingredientID: Int, amount: String) {
         val recipeIngredient = recipeIngredientController.getByID(ingredientID, recipeID)
         recipeIngredient.menge = amount
         recipeIngredientController.update(recipeIngredient)
     }
 
-    fun updateRecipeIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
+    fun updateRecipeIngredientsDB(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
 
         rezeptDao.update(recipe)
 
-        getRecipeIngredients(recipe).forEach {
-            if (!recipeIngredientsAmount.containsKey(it)) {
-                deleteIngredient(recipe.r_id, it.z_id)
-            }
-        }
+        removeDeletedIngredientsFromRecipe(recipe, recipeIngredientsAmount)
 
-        recipeIngredientsAmount.getKeys().forEach {
-            if (!ingredientController.getAllIngredients()
-                    .contains(it)
-            ) { // Wenn die Zutat noch nicht in der Datenbank ist
-                Log.i("RecipeController", "inserting ingredient $it")
+        addMissingIngredientsToDB(recipeIngredientsAmount)
 
-                ingredientController.insert(it)
+        addMissingIngredientsToRecipe(recipe, recipeIngredientsAmount)
 
-                val newIngredient = ingredientController.getByName(it.name)
-
-                if (newIngredient != null) {
-
-                    // Füge Zutat in das Rezept ein
-                    recipeIngredientController.insert(
-                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)?: "not defined"
-                    )
-
-                    Log.i(
-                        "RecipeController",
-                        "inserting recipeIngredient: ${newIngredient.z_id}, ${recipe.r_id}, ${
-                            recipeIngredientsAmount.getValue(
-                                it
-                            )
-                        }"
-                    )
-
-                } else {
-                    Log.e("RecipeController", "newIngredient is null")
-                }
-
-            } else {
-                val newIngredient = ingredientController.getByName(it.name)
-
-                // Wenn die Zutat nicht im Rezept ist, füge diese hinzu
-                if (newIngredient != null && !getRecipeIngredients(recipe).contains(newIngredient)) {
-                    recipeIngredientController.insert(
-                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)?: "not defined"
-                    )
-                } else {
-                    // Wenn die Zutat im Rezept ist, aktualisiere die Menge
-                    updateIngredient(
-                        recipe.r_id, newIngredient!!.z_id, recipeIngredientsAmount.getValue(it)
-                    )
-                }
-            }
-        }
-
-
+        updateExistingIngredients(recipe, recipeIngredientsAmount)
 
     }
+
+    private fun updateExistingIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
+
+        getRecipeIngredientsDB(recipe).forEach {
+            if (isIngredientInRecipe(
+                    recipe, it
+                ) && recipeIngredientsAmount.getValue(it) != "not defined"
+            ) {
+                updateIngredientDB(recipe.r_id, it.z_id, recipeIngredientsAmount.getValue(it))
+            }
+        }
+    }
+
+    private fun addMissingIngredientsToRecipe(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
+
+        recipeIngredientsAmount.getKeys().forEach {
+
+            val newIngredient = ingredientController.getByName(it.name)
+
+            if ((newIngredient != null) && !isIngredientInRecipe(recipe, newIngredient)) {
+
+                recipeIngredientController.insert(
+                    newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)
+                )
+
+                Log.i(
+                    "RecipeController",
+                    "inserting recipeIngredient: ${newIngredient.z_id}, ${recipe.r_id}, ${
+                        recipeIngredientsAmount.getValue(
+                            it
+                        )
+                    }"
+                )
+
+            }
+        }
+    }
+
+    private fun isIngredientInRecipe(recipe: Recipe, newIngredient: Ingredient): Boolean {
+        return getRecipeIngredientsDB(recipe).contains(newIngredient)
+    }
+
+    private fun addMissingIngredientsToDB(recipeIngredientsAmount: MapUtil) {
+        recipeIngredientsAmount.getKeys().forEach {
+            if (!isIngredientInDB(it)) {
+                Log.i("RecipeController", "inserting ingredient $it")
+                ingredientController.insert(it)
+            }
+        }
+    }
+
+    private fun isIngredientInDB(ingredient: Ingredient): Boolean {
+        return ingredientController.getAllIngredients().contains(ingredient)
+    }
+
+    private fun removeDeletedIngredientsFromRecipe(
+        recipe: Recipe, recipeIngredientsAmount: MapUtil
+    ) {
+        getRecipeIngredientsDB(recipe).forEach {
+            if (!isIngredientInList(
+                    recipeIngredientsAmount, it,
+                )
+            ) {
+                deleteIngredientFromRecipeDB(recipe.r_id, it.z_id)
+            }
+        }
+    }
+
+    private fun isIngredientInList(
+        recipeIngredientsAmount: MapUtil, ingredient: Ingredient
+    ) = recipeIngredientsAmount.containsKey(ingredient)
 
 
     private var zutatDao: ZutatDao

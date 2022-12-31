@@ -23,7 +23,7 @@ class RecipeIngredientController(context: Context) {
 
     fun update(recipeIngredient: RecipeIngredient) {
         rezeptZutatDao.update(
-            recipeIngredient.z_id, recipeIngredient.r_id, recipeIngredient.menge!!
+            recipeIngredient.z_id, recipeIngredient.r_id, recipeIngredient.menge?: "not defined"
         )
     }
 

@@ -88,14 +88,13 @@ fun ComposeCookingRecipeTab() {
 
     if (openRecipeDetailView.second) {
 
-        val recipeIngredients = recipeController.getRecipeIngredients(
+        val recipeIngredients = recipeController.getRecipeIngredientsDB(
             openRecipeDetailView.first
         )
 
-        val recipeAmounts = recipeController.getRecipeIngredientAmounts(
+        val recipeAmounts = recipeController.getRecipeIngredientAmountsDB(
             openRecipeDetailView.first, recipeIngredients
         )
-
 
         var selectedRecipe by remember { mutableStateOf(openRecipeDetailView.first.copy()) }
         var selectedIngredientAmount by remember { mutableStateOf(ComposeTextEditableMetadata()) }
@@ -127,7 +126,7 @@ fun ComposeCookingRecipeTab() {
                 recipeIngredientsAmount.popLast()
                 selectedIngredient = Ingredient(0, "test", false, 0)
 
-                recipeController.updateRecipeIngredients(
+                recipeController.updateRecipeIngredientsDB(
                     selectedRecipe, recipeIngredientsAmount
                 )
 
@@ -185,8 +184,6 @@ fun ComposeCookingRecipeTab() {
                 val ingredient = recipeIngredientsAmount.getKeys().find { ingredient ->
                     ingredient.z_id == selectedIngredientAmount.id
                 }!!
-
-                // val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
 
                 recipeIngredientsAmount.setValue(ingredient, it)
 
@@ -541,13 +538,13 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
                     }
                 })
 
-            if (recipeController.getRecipeIngredientsAvailable(recipe, true).isEmpty()) {
+            if (recipeController.getRecipeIngredientsAvailableDB(recipe, true).isEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.x_mark_3_32),
                     contentDescription = "No Ingredients Available",
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
-            } else if (recipeController.getRecipeIngredientsAvailable(recipe, false).isEmpty()) {
+            } else if (recipeController.getRecipeIngredientsAvailableDB(recipe, false).isEmpty()) {
                 Image(
                     painter = painterResource(id = R.drawable.eo_circle_green_checkmark_svg),
                     contentDescription = "All Ingredients Available",

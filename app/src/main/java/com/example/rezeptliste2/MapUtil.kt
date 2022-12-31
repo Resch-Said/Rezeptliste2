@@ -12,8 +12,8 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         return map.iterator()
     }
 
-    fun getValue(key: Ingredient): String? {
-        return map[key]
+    fun getValue(key: Ingredient): String {
+        return map[key] ?: "not defined"
     }
 
     fun remove(key: Ingredient) {

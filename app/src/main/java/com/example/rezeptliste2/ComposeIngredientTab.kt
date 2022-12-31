@@ -85,7 +85,7 @@ fun ComposeIngredientTab() {
     }
     var ingredients by remember { mutableStateOf(ingredientController.getAllAvailable(true)) }
     var addNewIngredient by remember { mutableStateOf(false) }
-    var newIngredient by remember {
+    var newIngredientName by remember {
         mutableStateOf("")
     }
 
@@ -103,7 +103,7 @@ fun ComposeIngredientTab() {
                 ingredientController.setAvailable(it.name, false)
                 ingredients = ingredientController.getAllAvailable(true)
                 ingredientsAutoComplete =
-                    getIngredientsForAutoComplete(ingredientController, newIngredient)
+                    getIngredientsForAutoComplete(ingredientController, newIngredientName)
             })
 
         if (addNewIngredient) {
@@ -114,11 +114,11 @@ fun ComposeIngredientTab() {
                     .weight(1f)
             ) {
 
-                TextField(value = newIngredient,
+                TextField(value = newIngredientName,
                     onValueChange = {
-                        newIngredient = it
+                        newIngredientName = it
                         ingredientsAutoComplete =
-                            getIngredientsForAutoComplete(ingredientController, newIngredient)
+                            getIngredientsForAutoComplete(ingredientController, newIngredientName)
                     },
                     label = { Text(text = "Enter New Ingredient") },
                     keyboardOptions = KeyboardOptions(
@@ -127,14 +127,14 @@ fun ComposeIngredientTab() {
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
 
-                        if (ingredientExists(ingredientController, newIngredient)) {
-                            ingredientController.setAvailable(newIngredient, true)
+                        if (ingredientExists(ingredientController, newIngredientName)) {
+                            ingredientController.setAvailable(newIngredientName, true)
                             ingredients = ingredientController.getAllAvailable(true)
                         }
-                        newIngredient = ""
+                        newIngredientName = ""
 
                         ingredientsAutoComplete =
-                            getIngredientsForAutoComplete(ingredientController, newIngredient)
+                            getIngredientsForAutoComplete(ingredientController, newIngredientName)
 
                         addNewIngredient = false
                     }),
@@ -147,10 +147,10 @@ fun ComposeIngredientTab() {
                     focusManager.clearFocus()
                     ingredientController.setAvailable(it.name, true)
                     ingredients = ingredientController.getAllAvailable(true)
-                    newIngredient = ""
+                    newIngredientName = ""
                     addNewIngredient = false
                     ingredientsAutoComplete =
-                        getIngredientsForAutoComplete(ingredientController, newIngredient)
+                        getIngredientsForAutoComplete(ingredientController, newIngredientName)
                 })
 
 
@@ -177,6 +177,7 @@ private fun ingredientExists(
 ) = ingredientController.getByName(newIngredient) != null
 
 private fun getIngredientsForAutoComplete(
-    zutatController: IngredientController,
+    ingredientController: IngredientController,
     contains: String,
-) = zutatController.getAllAvailable(false).filter { zutat -> zutat.name.contains(contains, true) }
+) = ingredientController.getAllAvailable(false)
+    .filter { ingredient -> ingredient.name.contains(contains, true) }
