@@ -165,7 +165,6 @@ fun ComposeCookingRecipeTab() {
                 if (selectedIngredient.name == "") {
                     recipeIngredientsAmount.remove(selectedIngredient)
                 }
-
             },
 
             onAmountClick = {
@@ -176,7 +175,11 @@ fun ComposeCookingRecipeTab() {
             onValueChangeAmount = {
                 Log.i("ComposeCookingRecipeTab", "onValueChangeAmount: $it")
 
-                val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
+                val ingredient = recipeIngredientsAmount.getKeys().find { ingredient ->
+                    ingredient.z_id == selectedIngredientAmount.id
+                }!!
+
+               // val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
 
                 recipeIngredientsAmount.setValue(ingredient, it)
 
