@@ -87,7 +87,7 @@ class RecipeController(context: Context) {
             }
         }
 
-        recipeIngredientsAmount.getKeys().forEach() {
+        recipeIngredientsAmount.getKeys().forEach {
             if (!ingredientController.getAllIngredients()
                     .contains(it)
             ) { // Wenn die Zutat noch nicht in der Datenbank ist

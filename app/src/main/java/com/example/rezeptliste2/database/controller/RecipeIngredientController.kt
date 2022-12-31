@@ -15,7 +15,6 @@ class RecipeIngredientController(context: Context) {
 
     fun delete(recipeIngredient: RecipeIngredient) {
         rezeptZutatDao.delete(recipeIngredient)
-
     }
 
     fun insert(ingredientID: Int, recipeID: Int, amount: String) {
@@ -23,7 +22,9 @@ class RecipeIngredientController(context: Context) {
     }
 
     fun update(recipeIngredient: RecipeIngredient) {
-        rezeptZutatDao.update(recipeIngredient.z_id, recipeIngredient.r_id, recipeIngredient.menge!!)
+        rezeptZutatDao.update(
+            recipeIngredient.z_id, recipeIngredient.r_id, recipeIngredient.menge!!
+        )
     }
 
     private var zutatDao: ZutatDao
