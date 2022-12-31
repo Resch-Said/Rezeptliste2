@@ -11,9 +11,11 @@ fun ComposeTabBar(selectedTabItem: Int, onTabSelected: (Int) -> Unit) {
 
     val tabs = listOf("Zutatenliste", "Kochrezepte")
 
-    TabRow(selectedTabIndex = selectedTabItem,
+    TabRow(
+        selectedTabIndex = selectedTabItem,
         backgroundColor = MaterialTheme.colors.primary,
-        contentColor = MaterialTheme.colors.onPrimary) {
+        contentColor = MaterialTheme.colors.onPrimary
+    ) {
         tabs.forEachIndexed { index, tab ->
             Tab(selected = index == 0, onClick = {
                 onTabSelected(index)

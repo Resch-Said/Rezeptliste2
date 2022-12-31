@@ -37,5 +37,4 @@ interface RezeptZutatDao {
     @Delete
     fun delete(rezeptZutat: RecipeIngredient)
 
-
 }

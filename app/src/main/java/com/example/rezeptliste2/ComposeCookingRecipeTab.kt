@@ -147,21 +147,14 @@ fun ComposeCookingRecipeTab() {
 
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
             },
-            onValueChangeIngredient = { it ->
-
-                // TODO: Zutat IO muss noch angepasst werden. Heißt, wenn eine Zutat umbenannt wird, muss die ID auch geändert werden.
-                // TODO: Zuerst prüfen, ob umbenannte Zutat existiert. Wenn ja, dann die ID der Zutat nehmen, wenn nein, dann eine freie ID nehmen.
-                // TODO: Prüfen, ob die ID der Menge entsprechend angepasst wird. Ich vermute aber, dass es automatisch passiert, da er die ID von der Zutat nimmt.
+            onValueChangeIngredient = {
 
                 Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
 
                 var newIngredient = selectedIngredient.copy()
                 newIngredient.name = it
 
-
-                if (ingredientController.getAllIngredients()
-                        .find { ingredient -> ingredient.name == it } != null
-                ) {
+                if (ingredientExists(ingredientController, it)) {
                     newIngredient = ingredientController.getAllIngredients()
                         .find { ingredient -> ingredient.name == it }!!
                 } else {
@@ -178,7 +171,6 @@ fun ComposeCookingRecipeTab() {
                 if (selectedIngredient.name == "") {
                     recipeIngredientsAmount.remove(selectedIngredient)
                 }
-
             },
 
             onAmountClick = {
@@ -219,6 +211,10 @@ fun ComposeCookingRecipeTab() {
         )
     }
 }
+
+private fun ingredientExists(
+    ingredientController: IngredientController, name: String
+) = ingredientController.getAllIngredients().find { ingredient -> ingredient.name == name } != null
 
 private fun getLastIngredientID(
     ingredientController: IngredientController, recipeIngredientsAmount: MapUtil

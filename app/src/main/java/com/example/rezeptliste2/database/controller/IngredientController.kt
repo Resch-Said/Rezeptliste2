@@ -13,25 +13,25 @@ class IngredientController(context: Context) {
         return zutatDao.getAllAvailable(isAvailable)
     }
 
-    fun setAvailable(ingredient: String, available: Boolean) {
+    fun setAvailable(ingredientName: String, available: Boolean) {
 
-        val zutat = zutatDao.getByName(ingredient)
+        val ingredient = zutatDao.getByName(ingredientName)
 
-        if (zutat != null) {
-            zutatDao.setAvailable(zutat.z_id, available)
+        if (ingredient != null) {
+            zutatDao.setAvailable(ingredient.z_id, available)
 
             if (available) {
-                zutatDao.setOrderID(zutat.z_id, zutatDao.getLastOrderID() + 1)
+                zutatDao.setOrderID(ingredient.z_id, zutatDao.getLastOrderID() + 1)
             }
         }
     }
 
-    fun getByName(ingredient: String): Ingredient? {
-        return zutatDao.getByName(ingredient)
+    fun getByName(ingredientName: String): Ingredient? {
+        return zutatDao.getByName(ingredientName)
     }
 
-    fun getByID(id: Int): Ingredient? {
-        return zutatDao.getByID(id)
+    fun getByID(ingredientID: Int): Ingredient? {
+        return zutatDao.getByID(ingredientID)
     }
 
     fun getLastID(): Int {

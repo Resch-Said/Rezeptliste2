@@ -47,5 +47,4 @@ interface ZutatDao {
     @Delete
     fun delete(zutat: Ingredient)
 
-
 }

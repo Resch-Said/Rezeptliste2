@@ -27,23 +27,6 @@ class RecipeController(context: Context) {
         return rezeptZutatDao.getRecipeIngredientsAvailable(recipe.r_id, available)
     }
 
-    fun getRecipeIngredientAmount(recipe: Recipe, ingredient: Ingredient): String? {
-
-        return rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id)
-    }
-
-    fun getRecipeIngredients(
-        recipe: Recipe, ingredients: List<Ingredient>
-    ): List<RecipeIngredient?> {
-
-        val recipeIngredients: MutableList<RecipeIngredient?> = mutableListOf()
-
-        ingredients.forEach {
-            recipeIngredients.add(rezeptZutatDao.getByID(it.z_id, recipe.r_id))
-        }
-
-        return recipeIngredients
-    }
 
     fun getRecipeIngredientAmounts(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
 
@@ -62,13 +45,9 @@ class RecipeController(context: Context) {
 
     private val ingredientController: IngredientController = IngredientController(context)
 
-    fun deleteIngredient(recipeID: Int, ingredientID: Int) {
+    private fun deleteIngredient(recipeID: Int, ingredientID: Int) {
         val recipeIngredient = recipeIngredientController.getByID(ingredientID, recipeID)
         recipeIngredientController.delete(recipeIngredient)
-    }
-
-    fun insertIngredient(recipeID: Int, ingredientID: Int, amount: String?) {
-        recipeIngredientController.insert(ingredientID, recipeID, amount ?: "not defined")
     }
 
     private fun updateIngredient(recipeID: Int, ingredientID: Int, amount: String?) {
@@ -101,7 +80,7 @@ class RecipeController(context: Context) {
 
                     // Füge Zutat in das Rezept ein
                     recipeIngredientController.insert(
-                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)!!
+                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)?: "not defined"
                     )
 
                     Log.i(
@@ -123,7 +102,7 @@ class RecipeController(context: Context) {
                 // Wenn die Zutat nicht im Rezept ist, füge diese hinzu
                 if (newIngredient != null && !getRecipeIngredients(recipe).contains(newIngredient)) {
                     recipeIngredientController.insert(
-                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)!!
+                        newIngredient.z_id, recipe.r_id, recipeIngredientsAmount.getValue(it)?: "not defined"
                     )
                 } else {
                     // Wenn die Zutat im Rezept ist, aktualisiere die Menge
@@ -133,6 +112,9 @@ class RecipeController(context: Context) {
                 }
             }
         }
+
+
+
     }
 
 

@@ -12,10 +12,6 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         return map.iterator()
     }
 
-    fun getValues(): Collection<String> {
-        return map.values
-    }
-
     fun getValue(key: Ingredient): String? {
         return map[key]
     }
@@ -34,9 +30,9 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         val oldMapUpperPart = MapUtil(emptyMap())
         val oldMapLowerPart = MapUtil(emptyMap())
 
-        var isUpperPart: Boolean = true
+        var isUpperPart = true
 
-        val newMap: MapUtil = MapUtil(emptyMap())
+        val newMap = MapUtil(emptyMap())
 
         map.keys.forEach {
             if (it == oldKey) {
@@ -54,7 +50,6 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         oldMapUpperPart.getKeys().forEach {
             newMap.put(it, oldMapUpperPart.getValue(it)!!)
         }
-
 
         newMap.put(newKey, map[oldKey]!!)
 
@@ -91,8 +86,8 @@ class MapUtil(private var map: Map<Ingredient, String>) {
 
         var lastID = 0
 
-        map.keys.forEach{
-            if ( lastID < it.z_id ) {
+        map.keys.forEach {
+            if (lastID < it.z_id) {
                 lastID = it.z_id
             }
         }
