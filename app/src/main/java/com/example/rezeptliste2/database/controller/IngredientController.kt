@@ -47,7 +47,7 @@ class IngredientController(context: Context) {
     }
 
     fun insert(ingredient: Ingredient) {
-        zutatDao.insert(ingredient)
+        zutatDao.insert(ingredient.name, ingredient.isAvailable, ingredient.orderID)
     }
 
     private var zutatDao: ZutatDao

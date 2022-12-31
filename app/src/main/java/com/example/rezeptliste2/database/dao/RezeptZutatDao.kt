@@ -28,11 +28,11 @@ interface RezeptZutatDao {
     @Query("SELECT menge FROM RezeptZutat WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID")
     fun getRecipeIngredientAmount(recipeID: Int, ingredientID: Int): String?
 
-    @Update
-    fun update(rezeptZutat: RecipeIngredient)
+    @Query("UPDATE RezeptZutat SET menge = :amount WHERE z_id LIKE :ingredientID AND r_id LIKE :recipeID")
+    fun update(ingredientID: Int, recipeID: Int, amount: String)
 
-    @Insert
-    fun insert(vararg rezeptZutat: RecipeIngredient)
+    @Query("INSERT INTO RezeptZutat (z_id, r_id, menge) VALUES (:ingredientID, :recipeID, :amount)")
+    fun insert(ingredientID: Int, recipeID: Int, amount: String)
 
     @Delete
     fun delete(rezeptZutat: RecipeIngredient)

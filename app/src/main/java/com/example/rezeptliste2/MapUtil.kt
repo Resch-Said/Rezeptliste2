@@ -55,6 +55,7 @@ class MapUtil(private var map: Map<Ingredient, String>) {
             newMap.put(it, oldMapUpperPart.getValue(it)!!)
         }
 
+
         newMap.put(newKey, map[oldKey]!!)
 
         oldMapLowerPart.getKeys().forEach {
@@ -72,7 +73,6 @@ class MapUtil(private var map: Map<Ingredient, String>) {
 
     fun setValue(ingredient: Ingredient?, it: String) {
         map = map.toMutableMap().apply { put(ingredient!!, it) }
-
     }
 
     fun getLastKey(): Ingredient {
@@ -85,5 +85,18 @@ class MapUtil(private var map: Map<Ingredient, String>) {
 
     fun containsKey(it: Ingredient): Boolean {
         return map.containsKey(it)
+    }
+
+    fun getLastKeyID(): Int {
+
+        var lastID = 0
+
+        map.keys.forEach{
+            if ( lastID < it.z_id ) {
+                lastID = it.z_id
+            }
+        }
+
+        return lastID
     }
 }

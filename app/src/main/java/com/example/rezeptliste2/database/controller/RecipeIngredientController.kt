@@ -18,16 +18,13 @@ class RecipeIngredientController(context: Context) {
 
     }
 
-    fun insert(ingredientID: Int, recipeID: Int, amount: String): RecipeIngredient {
-        val recipeIngredient = RecipeIngredient(recipeID, ingredientID, amount)
-        rezeptZutatDao.insert(recipeIngredient)
-        return recipeIngredient
+    fun insert(ingredientID: Int, recipeID: Int, amount: String) {
+        rezeptZutatDao.insert(ingredientID, recipeID, amount)
     }
 
     fun update(recipeIngredient: RecipeIngredient) {
-        rezeptZutatDao.update(recipeIngredient)
+        rezeptZutatDao.update(recipeIngredient.z_id, recipeIngredient.r_id, recipeIngredient.menge!!)
     }
-
 
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao

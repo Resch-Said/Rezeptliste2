@@ -108,15 +108,12 @@ fun ComposeCookingRecipeTab() {
 
         if (recipeIngredientsAmount.getLastKey().name != "") {
 
-            var lastIngredientID = ingredientController.getLastID() + 1
-
-            while (lastIngredientID <= recipeIngredientsAmount.getLastKey().z_id) {
-                lastIngredientID++
-            }
+            val lastIngredientID =
+                getLastIngredientID(ingredientController, recipeIngredientsAmount) + 1
 
             recipeIngredientsAmount.put(
                 Ingredient(
-                    lastIngredientID, "", false, ingredientController.getLastOrderID()+1
+                    lastIngredientID, "", false, ingredientController.getLastOrderID() + 1
                 ), ""
             )
         }
@@ -150,12 +147,28 @@ fun ComposeCookingRecipeTab() {
 
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
             },
-            onValueChangeIngredient = {
+            onValueChangeIngredient = { it ->
+
+                // TODO: Zutat IO muss noch angepasst werden. Heißt, wenn eine Zutat umbenannt wird, muss die ID auch geändert werden.
+                // TODO: Zuerst prüfen, ob umbenannte Zutat existiert. Wenn ja, dann die ID der Zutat nehmen, wenn nein, dann eine freie ID nehmen.
+                // TODO: Prüfen, ob die ID der Menge entsprechend angepasst wird. Ich vermute aber, dass es automatisch passiert, da er die ID von der Zutat nimmt.
 
                 Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
 
-                val newIngredient = selectedIngredient.copy()
+                var newIngredient = selectedIngredient.copy()
                 newIngredient.name = it
+
+
+                if (ingredientController.getAllIngredients()
+                        .find { ingredient -> ingredient.name == it } != null
+                ) {
+                    newIngredient = ingredientController.getAllIngredients()
+                        .find { ingredient -> ingredient.name == it }!!
+                } else {
+                    newIngredient.z_id =
+                        getLastIngredientID(ingredientController, recipeIngredientsAmount) + 1
+                    newIngredient.isAvailable = false
+                }
 
                 recipeIngredientsAmount =
                     recipeIngredientsAmount.replaceKey(selectedIngredient, newIngredient)
@@ -165,6 +178,7 @@ fun ComposeCookingRecipeTab() {
                 if (selectedIngredient.name == "") {
                     recipeIngredientsAmount.remove(selectedIngredient)
                 }
+
             },
 
             onAmountClick = {
@@ -173,13 +187,14 @@ fun ComposeCookingRecipeTab() {
             },
 
             onValueChangeAmount = {
+
                 Log.i("ComposeCookingRecipeTab", "onValueChangeAmount: $it")
 
                 val ingredient = recipeIngredientsAmount.getKeys().find { ingredient ->
                     ingredient.z_id == selectedIngredientAmount.id
                 }!!
 
-               // val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
+                // val ingredient = ingredientController.getByID(selectedIngredientAmount.id)
 
                 recipeIngredientsAmount.setValue(ingredient, it)
 
@@ -203,6 +218,17 @@ fun ComposeCookingRecipeTab() {
 
         )
     }
+}
+
+private fun getLastIngredientID(
+    ingredientController: IngredientController, recipeIngredientsAmount: MapUtil
+): Int {
+    var lastIngredientID = ingredientController.getLastID() + 1
+
+    if (recipeIngredientsAmount.getLastKeyID() > lastIngredientID) {
+        lastIngredientID = recipeIngredientsAmount.getLastKeyID()
+    }
+    return lastIngredientID
 }
 
 @Composable

@@ -41,8 +41,8 @@ interface ZutatDao {
     @Update
     fun updateZutat(zutat: Ingredient)
 
-    @Insert
-    fun insert(vararg zutaten: Ingredient)
+    @Query("INSERT INTO zutat (name, isAvailable, orderID) VALUES (:name, :isAvailable, :orderID)")
+    fun insert(name: String, isAvailable: Boolean?, orderID: Int)
 
     @Delete
     fun delete(zutat: Ingredient)
