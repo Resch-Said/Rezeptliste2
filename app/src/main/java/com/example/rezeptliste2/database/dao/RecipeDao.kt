@@ -1,6 +1,7 @@
 package com.example.rezeptliste2.database.dao
 
 import androidx.room.*
+import com.example.rezeptliste2.database.controller.RecipeIngredientController
 import com.example.rezeptliste2.database.dto.Recipe
 
 @Dao

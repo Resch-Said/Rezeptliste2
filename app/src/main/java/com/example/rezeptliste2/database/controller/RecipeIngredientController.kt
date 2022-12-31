@@ -6,8 +6,29 @@ import com.example.rezeptliste2.database.Database
 import com.example.rezeptliste2.database.dao.RecipeDao
 import com.example.rezeptliste2.database.dao.RezeptZutatDao
 import com.example.rezeptliste2.database.dao.ZutatDao
+import com.example.rezeptliste2.database.dto.RecipeIngredient
 
-class RezeptZutatController(context: Context) {
+class RecipeIngredientController(context: Context) {
+    fun getByID(ingredientID: Int, recipeID: Int): RecipeIngredient {
+        return rezeptZutatDao.getByID(ingredientID, recipeID)
+    }
+
+    fun delete(recipeIngredient: RecipeIngredient) {
+        rezeptZutatDao.delete(recipeIngredient)
+
+    }
+
+    fun insert(ingredientID: Int, recipeID: Int, amount: String): RecipeIngredient {
+        val recipeIngredient = RecipeIngredient(recipeID, ingredientID, amount)
+        rezeptZutatDao.insert(recipeIngredient)
+        return recipeIngredient
+    }
+
+    fun update(recipeIngredient: RecipeIngredient) {
+        rezeptZutatDao.update(recipeIngredient)
+    }
+
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao

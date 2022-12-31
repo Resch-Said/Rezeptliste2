@@ -82,4 +82,8 @@ class MapUtil(private var map: Map<Ingredient, String>) {
     fun popLast() {
         map = map.toMutableMap().apply { remove(map.keys.last()) }
     }
+
+    fun containsKey(it: Ingredient): Boolean {
+        return map.containsKey(it)
+    }
 }

@@ -31,7 +31,9 @@ class RecipeController(context: Context) {
         return rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id)
     }
 
-    fun getRecipeIngredients(recipe: Recipe, ingredients: List<Ingredient>): List<RecipeIngredient?> {
+    fun getRecipeIngredients(
+        recipe: Recipe, ingredients: List<Ingredient>
+    ): List<RecipeIngredient?> {
 
         val recipeIngredients: MutableList<RecipeIngredient?> = mutableListOf()
 
@@ -47,29 +49,58 @@ class RecipeController(context: Context) {
         val amounts: MutableList<String> = mutableListOf()
 
         for (ingredient in ingredients) {
-            amounts += rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id) ?: "not defined"
+            amounts += rezeptZutatDao.getRecipeIngredientAmount(recipe.r_id, ingredient.z_id)
+                ?: "not defined"
         }
 
         return amounts
     }
 
-    fun updateRecipeIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
+    private val recipeIngredientController: RecipeIngredientController =
+        RecipeIngredientController(context)
 
-        // TODO: Zutaten aus der Datenbank entfernen, die nicht mehr in der Liste sind (RezeptZutat)
-        // TODO: Zutaten in die Datenbank hinzufügen, die in der Liste sind, aber noch nicht in der Datenbank (Zutat)
-        // TODO: Zutaten die in der liste sind, aber noch nicht in der Datenbank, müssen auch in RezeptZutat eingefügt werden (RezeptZutat)
-        // TODO: Menge der Zutaten die vorhanden sind, updaten (RezeptZutat)
+    private val ingredientController: IngredientController = IngredientController(context)
+
+    fun deleteIngredient(recipeID: Int, ingredientID: Int) {
+        val recipeIngredient = recipeIngredientController.getByID(ingredientID, recipeID)
+        recipeIngredientController.delete(recipeIngredient)
+    }
+
+    fun insertIngredient(recipeID: Int, ingredientID: Int, amount: String?) {
+        recipeIngredientController.insert(ingredientID, recipeID, amount ?: "not defined")
+    }
+
+    private fun updateIngredient(recipeID: Int, ingredientID: Int, amount: String?) {
+        val recipeIngredient = recipeIngredientController.getByID(ingredientID, recipeID)
+        recipeIngredient.menge = amount
+        recipeIngredientController.update(recipeIngredient)
+    }
+
+    fun updateRecipeIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
 
         rezeptDao.update(recipe)
 
+        // TODO: Zutaten aus der Datenbank entfernen, die nicht mehr in der Liste sind (RezeptZutat)
 
-
-
-
-        // Das sollte am Ende sein, wenn alles sicher in der Datenbank ist.
-        for (recipeIngredient in recipeIngredientsAmount) {
-            rezeptZutatDao.updateAmount(recipeID = recipe.r_id, ingredientID = recipeIngredient.key.z_id, amount = recipeIngredient.value)
+        getRecipeIngredients(recipe).forEach {
+            if (!recipeIngredientsAmount.containsKey(it)) {
+                deleteIngredient(recipe.r_id, it.z_id)
+            }
         }
+
+        // TODO: Zutaten in die Datenbank hinzufügen, die in der Liste sind, aber noch nicht in der Datenbank (Zutat)
+
+        recipeIngredientsAmount.getKeys().forEach() {
+            if (!ingredientController.getAllIngredients().contains(it)) {
+                ingredientController.insert(it)
+                insertIngredient(recipe.r_id, it.z_id, recipeIngredientsAmount.getValue(it))
+            } else {
+                updateIngredient(recipe.r_id, it.z_id, recipeIngredientsAmount.getValue(it))
+            }
+        }
+
+        // TODO: Menge der Zutaten die vorhanden sind, updaten (RezeptZutat)
+
     }
 
 

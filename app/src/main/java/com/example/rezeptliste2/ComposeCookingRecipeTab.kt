@@ -116,7 +116,7 @@ fun ComposeCookingRecipeTab() {
 
             recipeIngredientsAmount.put(
                 Ingredient(
-                    lastIngredientID, "", false, ingredientController.getLastOrderID()
+                    lastIngredientID, "", false, ingredientController.getLastOrderID()+1
                 ), ""
             )
         }
@@ -133,7 +133,6 @@ fun ComposeCookingRecipeTab() {
                 recipeController.updateRecipeIngredients(
                     selectedRecipe, recipeIngredientsAmount
                 )
-
 
                 openRecipeDetailView = Pair(openRecipeDetailView.first, false)
             },

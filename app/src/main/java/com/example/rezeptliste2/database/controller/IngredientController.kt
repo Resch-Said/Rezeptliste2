@@ -42,6 +42,14 @@ class IngredientController(context: Context) {
         return zutatDao.getLastOrderID()
     }
 
+    fun getAllIngredients(): List<Ingredient> {
+        return zutatDao.getAll()
+    }
+
+    fun insert(ingredient: Ingredient) {
+        zutatDao.insert(ingredient)
+    }
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao

@@ -29,7 +29,7 @@ interface RezeptZutatDao {
     fun getRecipeIngredientAmount(recipeID: Int, ingredientID: Int): String?
 
     @Update
-    fun updateZutat(rezeptZutat: RecipeIngredient)
+    fun update(rezeptZutat: RecipeIngredient)
 
     @Insert
     fun insert(vararg rezeptZutat: RecipeIngredient)
