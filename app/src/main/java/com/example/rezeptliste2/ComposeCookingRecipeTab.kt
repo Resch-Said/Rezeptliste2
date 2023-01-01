@@ -212,8 +212,7 @@ fun ComposeCookingRecipeTab() {
                 selectedRecipe = selectedRecipe.copy(bild = it)
 
                 Log.i("ComposeCookingRecipeTab", "onImageClick: ${selectedRecipe.bild}")
-            }
-        )
+            })
     }
 }
 
@@ -317,7 +316,7 @@ fun ComposeRecipeCardDetailViewHeader(
 
     val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(
+    val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         selectedImage = uri
@@ -331,11 +330,10 @@ fun ComposeRecipeCardDetailViewHeader(
     Row {
         ComposeRecipeImage(recipe = recipe, modifier = Modifier
             .weight(2f)
+            .size(100.dp)
             .clickable {
-                launcher.launch("image/*")
-
-            }
-        )
+                galleryLauncher.launch("image/*")
+            })
 
         Column(
             modifier = Modifier
@@ -603,7 +601,9 @@ private fun ComposeRecipeImage(recipe: Recipe, modifier: Modifier = Modifier) {
         bitmap = byteArrayToBitmapImage(recipe.bild),
         contentDescription = recipe.name,
         contentScale = ContentScale.Crop,
-        modifier = modifier.clip(RoundedCornerShape(16.dp))
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .size(width = 200.dp, height = 150.dp)
     )
 }
 
