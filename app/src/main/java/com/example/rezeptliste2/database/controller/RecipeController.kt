@@ -79,7 +79,11 @@ class RecipeController(context: Context) {
 
         updateExistingIngredients(selectedRecipe, recipeIngredientsAmount)
 
+        ingredientController.removeUnusedIngredientsDB()
+
     }
+
+
 
     private fun getLastRecipeDB(): Recipe {
         return rezeptDao.getLast()
@@ -167,6 +171,16 @@ class RecipeController(context: Context) {
     private fun isIngredientInList(
         recipeIngredientsAmount: MapUtil, ingredient: Ingredient
     ) = recipeIngredientsAmount.containsKey(ingredient)
+
+    fun deleteRecipe(recipe: Recipe) {
+        // TODO: delete recipe from database
+
+        // TODO: Alle Zutaten aus dem Rezept löschen
+
+        rezeptDao.delete(recipe)
+
+
+    }
 
 
     private var zutatDao: ZutatDao

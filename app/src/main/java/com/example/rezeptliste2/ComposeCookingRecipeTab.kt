@@ -79,9 +79,6 @@ fun ComposeCookingRecipeTab() {
     if (!openRecipeDetailView.second) {
         recipes = recipeController.getAllRecipesDB()
 
-        // TODO: Wenn lange geklickt wird, dann öffnet sich ein Menü, um das Rezept zu bearbeiten oder zu löschen
-
-
         Column {
 
             LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
@@ -92,8 +89,11 @@ fun ComposeCookingRecipeTab() {
                             onDismissRequest = {
                                 openRecipePopupMenu = openRecipePopupMenu.copy(second = false)
                             },
-                            onClickEdit = { /*TODO*/ },
-                            onClickDelete = { /*TODO*/ })
+                            onClickEdit = { openRecipeDetailView = Pair(it, true) },
+                            onClickDelete = {
+                                recipeController.deleteRecipe(it)
+                                recipes = recipeController.getAllRecipesDB()
+                            })
 
                         ComposeRecipeCard(it, onClick = {
                             openRecipeDetailView = Pair(it, true)

@@ -54,6 +54,14 @@ class IngredientController(context: Context) {
         zutatDao.insert(ingredient.name, ingredient.isAvailable, ingredient.orderID)
     }
 
+    fun removeUnusedIngredientsDB() {
+        val unusedIngredients = zutatDao.getAllNotInRezeptZutat()
+
+        for (ingredient in unusedIngredients) {
+            zutatDao.delete(ingredient)
+        }
+    }
+
     private var zutatDao: ZutatDao
     private var rezeptZutatDao: RezeptZutatDao
     private var rezeptDao: RecipeDao
