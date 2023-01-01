@@ -12,7 +12,7 @@ import com.example.rezeptliste2.database.dto.Ingredient
 import com.example.rezeptliste2.database.dto.Recipe
 
 class RecipeController(context: Context) {
-    fun getAllRecipes(): List<Recipe> {
+    fun getAllRecipesDB(): List<Recipe> {
         return rezeptDao.getAll()
     }
 
@@ -27,7 +27,6 @@ class RecipeController(context: Context) {
 
         return rezeptZutatDao.getRecipeIngredientsAvailable(recipe.r_id, available)
     }
-
 
     fun getRecipeIngredientAmountsDB(recipe: Recipe, ingredients: List<Ingredient>): List<String> {
 
@@ -59,16 +58,39 @@ class RecipeController(context: Context) {
 
     fun updateRecipeIngredientsDB(recipe: Recipe, recipeIngredientsAmount: MapUtil) {
 
-        rezeptDao.update(recipe)
+        var selectedRecipe = recipe
 
-        removeDeletedIngredientsFromRecipe(recipe, recipeIngredientsAmount)
+        if(getRecipeByID(selectedRecipe.r_id) == null) {
+            insertRecipeDB(selectedRecipe)
+            selectedRecipe = getLastRecipeDB()
+        }else {
+            updateRecipeDB(selectedRecipe)
+        }
+
+        removeDeletedIngredientsFromRecipe(selectedRecipe, recipeIngredientsAmount)
 
         addMissingIngredientsToDB(recipeIngredientsAmount)
 
-        addMissingIngredientsToRecipe(recipe, recipeIngredientsAmount)
+        addMissingIngredientsToRecipe(selectedRecipe, recipeIngredientsAmount)
 
-        updateExistingIngredients(recipe, recipeIngredientsAmount)
+        updateExistingIngredients(selectedRecipe, recipeIngredientsAmount)
 
+    }
+
+    private fun getLastRecipeDB(): Recipe {
+        return rezeptDao.getLast()
+    }
+
+    private fun updateRecipeDB(recipe: Recipe) {
+        rezeptDao.update(recipe)
+    }
+
+    private fun insertRecipeDB(recipe: Recipe) {
+        rezeptDao.insert(recipe.name, recipe.dauer, recipe.zubereitung, recipe.bild)
+    }
+
+    private fun getRecipeByID(recipeID: Int): Recipe? {
+        return rezeptDao.getByID(recipeID)
     }
 
     private fun updateExistingIngredients(recipe: Recipe, recipeIngredientsAmount: MapUtil) {

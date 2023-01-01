@@ -70,6 +70,10 @@ class MapUtil(private var map: Map<Ingredient, String>) {
         map = map.toMutableMap().apply { put(ingredient!!, it) }
     }
 
+    fun isEmpty(): Boolean {
+        return map.isEmpty()
+    }
+
     fun getLastKey(): Ingredient {
         return map.keys.last()
     }

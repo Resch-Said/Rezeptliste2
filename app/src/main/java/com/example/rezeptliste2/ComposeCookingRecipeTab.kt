@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -48,10 +49,12 @@ import java.io.ByteArrayOutputStream
 @Composable
 fun ComposeCookingRecipeTab() {
 
+    val context = LocalContext.current
+
     val recipeController = RecipeController(LocalContext.current)
     val ingredientController = IngredientController(LocalContext.current)
 
-    var recipes by remember { mutableStateOf(recipeController.getAllRecipes()) }
+    var recipes by remember { mutableStateOf(recipeController.getAllRecipesDB()) }
     var openRecipeDetailView by remember {
         mutableStateOf(
             Pair(
@@ -62,7 +65,7 @@ fun ComposeCookingRecipeTab() {
 
     // Recipe List
     if (!openRecipeDetailView.second) {
-        recipes = recipeController.getAllRecipes()
+        recipes = recipeController.getAllRecipesDB()
 
         Column {
             LazyVerticalGrid(cells = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
@@ -76,6 +79,16 @@ fun ComposeCookingRecipeTab() {
                 ComposeAddButton(
                     onClick = {
                         // TODO: Add new Recipe
+
+                        openRecipeDetailView = Pair(
+                            Recipe(
+                                0,
+                                "not defined",
+                                0,
+                                "not defined",
+                                null,
+                            ), true
+                        )
 
                     },
                     buttonText = "+",
@@ -109,7 +122,7 @@ fun ComposeCookingRecipeTab() {
             )
         }
 
-        if (recipeIngredientsAmount.getLastKey().name != "") {
+        if (recipeIngredientsAmount.isEmpty() || recipeIngredientsAmount.getLastKey().name != "") {
 
             val lastIngredientID =
                 getLastIngredientID(ingredientController, recipeIngredientsAmount) + 1
@@ -613,5 +626,11 @@ private fun bitmapImageToByteArray(bitmap: Bitmap): ByteArray {
     return stream.toByteArray()
 }
 
-private fun byteArrayToBitmapImage(image: ByteArray?) =
-    BitmapFactory.decodeByteArray(image, 0, image!!.size).asImageBitmap()
+private fun byteArrayToBitmapImage(image: ByteArray?): ImageBitmap {
+
+    if(image == null) {
+        return ImageBitmap(1, 1)
+    }
+
+   return BitmapFactory.decodeByteArray(image, 0, image.size).asImageBitmap()
+}
