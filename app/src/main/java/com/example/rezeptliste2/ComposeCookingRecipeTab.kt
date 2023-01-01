@@ -2,7 +2,11 @@ package com.example.rezeptliste2
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -19,8 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -58,6 +60,7 @@ fun ComposeCookingRecipeTab() {
         )
     }
 
+    // Recipe List
     if (!openRecipeDetailView.second) {
         recipes = recipeController.getAllRecipes()
 
@@ -86,6 +89,7 @@ fun ComposeCookingRecipeTab() {
 
     var selectedIngredient by remember { mutableStateOf(Ingredient(0, "test", false, 0)) }
 
+    // Recipe Detail View
     if (openRecipeDetailView.second) {
 
         val recipeIngredients = recipeController.getRecipeIngredientsDB(
@@ -122,7 +126,6 @@ fun ComposeCookingRecipeTab() {
             selectedIngredientAmount = selectedIngredientAmount,
             selectedIngredient = selectedIngredient,
             onDone = {
-                // TODO: Update Recipe
                 recipeIngredientsAmount.popLast()
                 selectedIngredient = Ingredient(0, "test", false, 0)
 
@@ -146,6 +149,7 @@ fun ComposeCookingRecipeTab() {
 
                 Log.i("ComposeCookingRecipeTab", "onIngredientClick: $selectedIngredient")
             },
+
             onValueChangeIngredient = {
 
                 Log.i("ComposeCookingRecipeTab", "onValueChangeIngredient: $it")
@@ -195,7 +199,6 @@ fun ComposeCookingRecipeTab() {
             },
 
             onValueChangeRecipeDuration = {
-
                 if (it.toIntOrNull() != null) {
                     selectedRecipe = selectedRecipe.copy(dauer = it.toInt())
                 }
@@ -203,11 +206,17 @@ fun ComposeCookingRecipeTab() {
 
             onValueChangeRecipeInstruction = {
                 selectedRecipe = selectedRecipe.copy(zubereitung = it)
-            }
+            },
 
+            onImageClick = {
+                selectedRecipe = selectedRecipe.copy(bild = it)
+
+                Log.i("ComposeCookingRecipeTab", "onImageClick: ${selectedRecipe.bild}")
+            }
         )
     }
 }
+
 
 private fun ingredientExists(
     ingredientController: IngredientController, name: String
@@ -238,7 +247,8 @@ fun ComposeRecipeCardDetailView(
     onValueChangeIngredient: (String) -> Unit,
     selectedIngredientAmount: ComposeTextEditableMetadata,
     recipeIngredientsAmount: MapUtil,
-    onValueChangeAmount: (String) -> Unit
+    onValueChangeAmount: (String) -> Unit,
+    onImageClick: (ByteArray) -> Unit,
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -256,7 +266,8 @@ fun ComposeRecipeCardDetailView(
         ComposeRecipeCardDetailViewHeader(
             recipe = recipe,
             onValueChangeRecipeName = onValueChangeRecipeName,
-            onValueChangeRecipeDuration = onValueChangeRecipeDuration
+            onValueChangeRecipeDuration = onValueChangeRecipeDuration,
+            onImageClick = onImageClick,
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -290,16 +301,41 @@ fun ComposeRecipeCardDetailView(
     }
 }
 
+
 @Composable
 fun ComposeRecipeCardDetailViewHeader(
     recipe: Recipe,
     onValueChangeRecipeName: (String) -> Unit,
-    onValueChangeRecipeDuration: (String) -> Unit
+    onValueChangeRecipeDuration: (String) -> Unit,
+    onImageClick: (ByteArray) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
+    var selectedImage by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImage = uri
+        selectedImage?.let {
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            val byteArray = bitmapImageToByteArray(bitmap)
+            onImageClick(byteArray)
+        }
+    }
+
     Row {
-        ComposeRecipeImage(recipe = recipe, modifier = Modifier.weight(2f))
+        ComposeRecipeImage(recipe = recipe, modifier = Modifier
+            .weight(2f)
+            .clickable {
+                launcher.launch("image/*")
+
+            }
+        )
 
         Column(
             modifier = Modifier
@@ -426,7 +462,7 @@ fun ComposeRecipeCardDetailViewIngredientList(
                 )
 
                 ComposeTableCell(
-                    text = recipeIngredientsAmount.getValue(it) ?: "not defined",
+                    text = recipeIngredientsAmount.getValue(it),
                     modifier = Modifier.weight(1f),
                     onValueChange = onValueChangeAmount,
                     onClick = onAmountClick,
@@ -571,9 +607,7 @@ private fun ComposeRecipeImage(recipe: Recipe, modifier: Modifier = Modifier) {
     )
 }
 
-// Using later to save an image in the database
-private fun bitmapImageToByteArray(image: ImageBitmap): ByteArray {
-    val bitmap = image.asAndroidBitmap()
+private fun bitmapImageToByteArray(bitmap: Bitmap): ByteArray {
     val stream = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
     return stream.toByteArray()
