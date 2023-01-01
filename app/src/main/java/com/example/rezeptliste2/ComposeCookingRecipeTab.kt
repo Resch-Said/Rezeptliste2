@@ -1,13 +1,9 @@
 package com.example.rezeptliste2
 
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
-import android.provider.MediaStore.Images.Media.getBitmap
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,11 +68,15 @@ fun ComposeCookingRecipeTab() {
     if (!openRecipeDetailView.second) {
         recipes = recipeController.getAllRecipesDB()
 
+        // TODO: Wenn lange geklickt wird, dann öffnet sich ein Menü, um das Rezept zu bearbeiten oder zu löschen
+
         Column {
             LazyVerticalGrid(cells = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
                 items(recipes) {
                     ComposeRecipeCard(it, onClick = {
                         openRecipeDetailView = Pair(it, true)
+                    }, onLongClick = {
+                        
                     })
                 }
             }
@@ -90,7 +90,12 @@ fun ComposeCookingRecipeTab() {
                                 "not defined",
                                 0,
                                 "not defined",
-                                bitmapImageToByteArray(resource.getDrawable(R.drawable.ic_baseline_image_search_24, null).toBitmap())
+                                bitmapImageToByteArray(
+                                    resource.getDrawable(
+                                        R.drawable.ic_baseline_image_search_24,
+                                        null
+                                    ).toBitmap()
+                                )
                             ), true
                         )
 
@@ -552,7 +557,7 @@ fun ComposeTextEditable(
 }
 
 @Composable
-fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
+fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
     var fontSize by remember { mutableStateOf(16.sp) }
     var visibility by remember { mutableStateOf(0f) }
@@ -562,8 +567,15 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit) {
             .alpha(visibility)
             .wrapContentSize()
             .padding(6.dp)
-            .clickable {
-                onClick()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        onClick()
+                    },
+                    onLongPress = {
+                        onLongClick()
+                    }
+                )
             }) {
 
         ComposeRecipeImage(recipe)
@@ -632,9 +644,9 @@ private fun bitmapImageToByteArray(bitmap: Bitmap): ByteArray {
 
 private fun byteArrayToBitmapImage(image: ByteArray?): ImageBitmap {
 
-    if(image == null) {
+    if (image == null) {
         return ImageBitmap(1, 1)
     }
 
-   return BitmapFactory.decodeByteArray(image, 0, image.size).asImageBitmap()
+    return BitmapFactory.decodeByteArray(image, 0, image.size).asImageBitmap()
 }
