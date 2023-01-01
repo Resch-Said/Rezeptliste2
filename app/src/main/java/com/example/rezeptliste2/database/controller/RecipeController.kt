@@ -83,8 +83,6 @@ class RecipeController(context: Context) {
 
     }
 
-
-
     private fun getLastRecipeDB(): Recipe {
         return rezeptDao.getLast()
     }
@@ -177,9 +175,20 @@ class RecipeController(context: Context) {
 
         // TODO: Alle Zutaten aus dem Rezept löschen
 
+        val lastIngredientID = getLastIngredientID(recipe)
+
+        for (i in 1..lastIngredientID) {
+            deleteIngredientFromRecipeDB(recipe.r_id, i)
+        }
+
         rezeptDao.delete(recipe)
 
+        ingredientController.removeUnusedIngredientsDB()
 
+    }
+
+    private fun getLastIngredientID(recipe: Recipe): Int {
+        return rezeptDao.getLastIngredientID(recipe.r_id)
     }
 
 

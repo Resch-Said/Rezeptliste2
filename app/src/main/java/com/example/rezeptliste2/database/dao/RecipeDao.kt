@@ -18,6 +18,9 @@ interface RecipeDao {
     @Query("SELECT * FROM Rezept WHERE r_id IN (SELECT max(r_id) FROM Rezept)")
     fun getLast(): Recipe
 
+    @Query("SELECT max(z_id) FROM RezeptZutat WHERE r_id LIKE :recipeID")
+    fun getLastIngredientID(recipeID: Int): Int
+
     @Update
     fun update(rezept: Recipe)
 
@@ -26,6 +29,7 @@ interface RecipeDao {
 
     @Delete
     fun delete(rezept: Recipe)
+
 
 
 }

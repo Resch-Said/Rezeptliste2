@@ -62,7 +62,7 @@ fun ComposeCookingRecipeTab() {
     var openRecipeDetailView by remember {
         mutableStateOf(
             Pair(
-                recipes[0], false
+                Recipe(), false
             )
         )
     }
@@ -70,7 +70,7 @@ fun ComposeCookingRecipeTab() {
     var openRecipePopupMenu by remember {
         mutableStateOf(
             Pair(
-                recipes[0], false
+                Recipe(), false
             )
         )
     }

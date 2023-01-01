@@ -13,8 +13,10 @@ class RecipeIngredientController(context: Context) {
         return rezeptZutatDao.getByID(ingredientID, recipeID)
     }
 
-    fun delete(recipeIngredient: RecipeIngredient) {
-        rezeptZutatDao.delete(recipeIngredient)
+    fun delete(recipeIngredient: RecipeIngredient?) {
+        if (recipeIngredient != null) {
+            rezeptZutatDao.delete(recipeIngredient)
+        }
     }
 
     fun insert(ingredientID: Int, recipeID: Int, amount: String) {
