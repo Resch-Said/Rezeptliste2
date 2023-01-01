@@ -1,9 +1,13 @@
 package com.example.rezeptliste2
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
+import android.provider.MediaStore.Images.Media.getBitmap
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import com.example.rezeptliste2.database.controller.IngredientController
 import com.example.rezeptliste2.database.controller.RecipeController
 import com.example.rezeptliste2.database.dto.Ingredient
@@ -49,7 +54,7 @@ import java.io.ByteArrayOutputStream
 @Composable
 fun ComposeCookingRecipeTab() {
 
-    val context = LocalContext.current
+    val resource = LocalContext.current.resources
 
     val recipeController = RecipeController(LocalContext.current)
     val ingredientController = IngredientController(LocalContext.current)
@@ -78,7 +83,6 @@ fun ComposeCookingRecipeTab() {
             Column(modifier = Modifier.fillMaxWidth()) {
                 ComposeAddButton(
                     onClick = {
-                        // TODO: Add new Recipe
 
                         openRecipeDetailView = Pair(
                             Recipe(
@@ -86,7 +90,7 @@ fun ComposeCookingRecipeTab() {
                                 "not defined",
                                 0,
                                 "not defined",
-                                null,
+                                bitmapImageToByteArray(resource.getDrawable(R.drawable.ic_baseline_image_search_24, null).toBitmap())
                             ), true
                         )
 
