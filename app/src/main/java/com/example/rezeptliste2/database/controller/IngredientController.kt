@@ -13,6 +13,10 @@ class IngredientController(context: Context) {
         return zutatDao.getAllAvailable(isAvailable)
     }
 
+    fun closeDB() {
+        db.close()
+    }
+
     fun setAvailable(ingredientName: String, available: Boolean) {
 
         val ingredient = zutatDao.getByName(ingredientName)

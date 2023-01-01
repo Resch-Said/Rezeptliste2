@@ -10,11 +10,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -46,7 +50,6 @@ import com.example.rezeptliste2.database.dto.Recipe
 import java.io.ByteArrayOutputStream
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ComposeCookingRecipeTab() {
 
@@ -64,36 +67,53 @@ fun ComposeCookingRecipeTab() {
         )
     }
 
+    var openRecipePopupMenu by remember {
+        mutableStateOf(
+            Pair(
+                recipes[0], false
+            )
+        )
+    }
+
     // Recipe List
     if (!openRecipeDetailView.second) {
         recipes = recipeController.getAllRecipesDB()
 
         // TODO: Wenn lange geklickt wird, dann öffnet sich ein Menü, um das Rezept zu bearbeiten oder zu löschen
 
+
         Column {
-            LazyVerticalGrid(cells = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
+
+            LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
                 items(recipes) {
-                    ComposeRecipeCard(it, onClick = {
-                        openRecipeDetailView = Pair(it, true)
-                    }, onLongClick = {
-                        
-                    })
+
+                    Box {
+                        ComposeDropDownMenuRecipe(expanded = (openRecipePopupMenu.second && openRecipePopupMenu.first == it),
+                            onDismissRequest = {
+                                openRecipePopupMenu = openRecipePopupMenu.copy(second = false)
+                            },
+                            onClickEdit = { /*TODO*/ },
+                            onClickDelete = { /*TODO*/ })
+
+                        ComposeRecipeCard(it, onClick = {
+                            openRecipeDetailView = Pair(it, true)
+                        }, onLongClick = {
+                            openRecipePopupMenu = Pair(it, true)
+                        })
+                    }
+
                 }
             }
+
             Column(modifier = Modifier.fillMaxWidth()) {
                 ComposeAddButton(
                     onClick = {
 
                         openRecipeDetailView = Pair(
                             Recipe(
-                                0,
-                                "not defined",
-                                0,
-                                "not defined",
-                                bitmapImageToByteArray(
+                                0, "not defined", 0, "not defined", bitmapImageToByteArray(
                                     resource.getDrawable(
-                                        R.drawable.ic_baseline_image_search_24,
-                                        null
+                                        R.drawable.ic_baseline_image_search_24, null
                                     ).toBitmap()
                                 )
                             ), true
@@ -235,6 +255,23 @@ fun ComposeCookingRecipeTab() {
 
                 Log.i("ComposeCookingRecipeTab", "onImageClick: ${selectedRecipe.bild}")
             })
+    }
+}
+
+@Composable
+private fun ComposeDropDownMenuRecipe(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    onClickEdit: () -> Unit,
+    onClickDelete: () -> Unit
+) {
+    DropdownMenu(expanded = expanded, onDismissRequest = { onDismissRequest() }) {
+        DropdownMenuItem(onClick = { onClickEdit() }) {
+            Text("Edit")
+        }
+        DropdownMenuItem(onClick = { onClickDelete() }) {
+            Text("Delete")
+        }
     }
 }
 
@@ -568,14 +605,11 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Un
             .wrapContentSize()
             .padding(6.dp)
             .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onClick()
-                    },
-                    onLongPress = {
-                        onLongClick()
-                    }
-                )
+                detectTapGestures(onTap = {
+                    onClick()
+                }, onLongPress = {
+                    onLongClick()
+                })
             }) {
 
         ComposeRecipeImage(recipe)

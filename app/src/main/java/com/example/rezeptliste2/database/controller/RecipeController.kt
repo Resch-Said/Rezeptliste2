@@ -16,6 +16,10 @@ class RecipeController(context: Context) {
         return rezeptDao.getAll()
     }
 
+    fun closeDB() {
+        db.close()
+    }
+
     fun getRecipeIngredientsDB(recipe: Recipe): List<Ingredient> {
 
         return rezeptZutatDao.getRecipeIngredients(recipe.r_id)
