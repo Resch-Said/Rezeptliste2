@@ -387,11 +387,14 @@ fun ComposeRecipeCardDetailViewHeader(
     }
 
     Row {
-        ComposeRecipeImage(recipe = recipe, modifier = Modifier
-            .weight(2f).heightIn(max = 100.dp)
-            .clickable {
-                galleryLauncher.launch("image/*")
-            })
+        ComposeRecipeImage(
+            recipe = recipe,
+            modifier = Modifier
+                .weight(2f)
+                .heightIn(max = 100.dp)
+                .clickable {
+                    galleryLauncher.launch("image/*")
+                })
 
         Column(
             modifier = Modifier
