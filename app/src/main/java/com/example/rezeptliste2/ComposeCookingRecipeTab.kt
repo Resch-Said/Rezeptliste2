@@ -17,10 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,7 +105,6 @@ fun ComposeCookingRecipeTab() {
             Column(modifier = Modifier.fillMaxWidth()) {
                 ComposeAddButton(
                     onClick = {
-
                         openRecipeDetailView = Pair(
                             Recipe(
                                 0, "not defined", 0, "not defined", bitmapImageToByteArray(
@@ -118,7 +114,6 @@ fun ComposeCookingRecipeTab() {
                                 )
                             ), true
                         )
-
                     },
                     buttonText = "+",
                     modifier = Modifier
@@ -587,7 +582,7 @@ fun ComposeTextEditable(
 
                 onClick(ComposeTextEditableMetadata(text, id))
             },
-        textStyle = textStyle.copy(fontSize = 16.sp),
+        textStyle = textStyle.copy(fontSize = 16.sp, color = MaterialTheme.colors.onSurface),
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
             onDone()
@@ -599,12 +594,11 @@ fun ComposeTextEditable(
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
     var fontSize by remember { mutableStateOf(16.sp) }
-    var visibility by remember { mutableStateOf(1f) }
+    val visibility by remember { mutableStateOf(1f) }
 
     Column(
         Modifier
             .alpha(visibility)
-            .wrapContentSize()
             .padding(6.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
