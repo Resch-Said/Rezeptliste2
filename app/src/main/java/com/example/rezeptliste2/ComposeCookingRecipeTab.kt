@@ -81,7 +81,7 @@ fun ComposeCookingRecipeTab() {
 
         Column {
 
-            LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier.weight(1f)) {
+            LazyVerticalGrid(columns = GridCells.Adaptive(190.dp), modifier = Modifier.weight(1f)) {
                 items(recipes) {
 
                     Box {
@@ -388,8 +388,7 @@ fun ComposeRecipeCardDetailViewHeader(
 
     Row {
         ComposeRecipeImage(recipe = recipe, modifier = Modifier
-            .weight(2f)
-            .size(100.dp)
+            .weight(2f).heightIn(max = 100.dp)
             .clickable {
                 galleryLauncher.launch("image/*")
             })
@@ -597,7 +596,7 @@ fun ComposeTextEditable(
 fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Unit) {
     val recipeController = RecipeController(LocalContext.current)
     var fontSize by remember { mutableStateOf(16.sp) }
-    var visibility by remember { mutableStateOf(0f) }
+    var visibility by remember { mutableStateOf(1f) }
 
     Column(
         Modifier
@@ -617,21 +616,25 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Un
         Text(text = recipe.name)
 
         Row {
-            Text(
-                text = "Duration: " + recipe.dauer.toString() + " minutes",
+            Text(text = "Duration: " + recipe.dauer.toString() + " min",
+                modifier = Modifier.weight(1f, false),
                 maxLines = 1,
-                fontSize = fontSize
-            )
+                fontSize = fontSize,
+                onTextLayout = {
+                    if (it.hasVisualOverflow) {
+                        fontSize *= 0.95f
+                    }
+                })
 
             Text(text = " Availability: ",
                 fontSize = fontSize,
+                modifier = Modifier.weight(1f, false),
                 maxLines = 1,
-                onTextLayout = { textLayoutResult ->
-                    if (textLayoutResult.hasVisualOverflow) {
+
+                onTextLayout = {
+                    if (it.hasVisualOverflow) {
                         Log.i("ComposeRecipeCard", "Text did overflow. FontSize: $fontSize")
                         fontSize *= 0.95f
-                    } else {
-                        visibility = 1f
                     }
                 })
 
