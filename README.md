@@ -6,6 +6,8 @@ When the app is started, you are usually in the Ingredients list tab. The basic 
 In the ingredients list, you enter all the ingredients that you find in your household. However, the list of ingredients has been deliberately limited so that it is only possible to add ingredients that are also is present in a recipe.
 
 To the right of the ingredient there is a trash can icon which you can use to remove an ingredient from the list.
+![Screenshot 2024-05-13 184144 (Telefon)](https://github.com/Resch-Said/Rezeptliste2/assets/25457206/62282f85-68ef-4ede-b26b-a6285614f298) ![Screenshot 2024-05-13 184320 (Telefon)](https://github.com/Resch-Said/Rezeptliste2/assets/25457206/3ce8d1ac-a680-41b4-bd9a-d6aa0621e41d)
+
 
 At the bottom right there is a button that opens a text field. Below the text field, all the ingredients that are available for selection are listed below the text field. By clicking on an ingredient below the text field, it is automatically added to the list. The text field itself is used to filter the ingredients.
 
@@ -32,6 +34,8 @@ Accordingly, we have 3 availability levels.
 ***Orange***: We have at least one ingredient, but not all of them. Also orange because yellow was difficult to see. \
 ***Red***: We are missing all ingredients
 
+![Screenshot 2024-05-13 184348 (Telefon)](https://github.com/Resch-Said/Rezeptliste2/assets/25457206/381f0c1b-5587-4fd0-b3bd-3c6d98fcffab)
+
 Let's start with the obvious. There is a button at the bottom right to add a recipe.
 The recipes are clickable, which opens a detailed view of the recipe.
 
@@ -49,6 +53,12 @@ Then we can start directly with the exciting part, which is where all the magic 
 Just like in the overview, we see the picture, name and duration.
 Below we see a list of ingredients and next to it the quantity.
 Finally, there are instructions on how to prepare this recipe.
+
+
+
+![Screenshot 2024-05-13 184455 (Telefon)](https://github.com/Resch-Said/Rezeptliste2/assets/25457206/ad837e54-8ede-43dd-bbc2-732b13e358dc) ![Screenshot 2024-05-13 184408 (Telefon)](https://github.com/Resch-Said/Rezeptliste2/assets/25457206/207e475c-a2d3-4e84-be21-d5a200a58fce)
+
+
 
 Well, the detailed view looks a bit strange. There are 2 buttons at the bottom. One is a Back button and the other a Done button.
 The last line in the ingredients list is also empty.
