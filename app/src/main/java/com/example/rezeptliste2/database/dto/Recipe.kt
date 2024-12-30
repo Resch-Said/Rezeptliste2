@@ -9,7 +9,7 @@ data class Recipe(
     var name: String,
     var dauer: Int?,
     var zubereitung: String?,
-    val bild: ByteArray?,
+    val bild: String?,
 ) {
     constructor() : this(0, "", 0, "", null)
 }

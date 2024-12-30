@@ -25,11 +25,8 @@ interface RecipeDao {
     fun update(rezept: Recipe)
 
     @Query("INSERT INTO rezept (name, dauer, zubereitung, bild) VALUES (:name, :dauer, :zubereitung, :bild)")
-    fun insert(name: String, dauer: Int?, zubereitung: String?, bild: ByteArray?)
+    fun insert(name: String, dauer: Int?, zubereitung: String?, bild: String?)
 
     @Delete
     fun delete(rezept: Recipe)
-
-
-
 }
