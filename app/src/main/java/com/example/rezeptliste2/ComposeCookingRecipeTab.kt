@@ -45,6 +45,8 @@ import com.example.rezeptliste2.database.controller.RecipeController
 import com.example.rezeptliste2.database.dto.Ingredient
 import com.example.rezeptliste2.database.dto.Recipe
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 
 @Composable
@@ -107,11 +109,7 @@ fun ComposeCookingRecipeTab() {
                     onClick = {
                         openRecipeDetailView = Pair(
                             Recipe(
-                                0, "not defined", 0, "not defined", bitmapImageToByteArray(
-                                    resource.getDrawable(
-                                        R.drawable.ic_baseline_image_search_24, null
-                                    ).toBitmap()
-                                )
+                                0, "not defined", 0, "not defined", null
                             ), true
                         )
                     },
@@ -301,7 +299,7 @@ fun ComposeRecipeCardDetailView(
     selectedIngredientAmount: ComposeTextEditableMetadata,
     recipeIngredientsAmount: MapUtil,
     onValueChangeAmount: (String) -> Unit,
-    onImageClick: (ByteArray) -> Unit,
+    onImageClick: (String) -> Unit,
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -360,7 +358,7 @@ fun ComposeRecipeCardDetailViewHeader(
     recipe: Recipe,
     onValueChangeRecipeName: (String) -> Unit,
     onValueChangeRecipeDuration: (String) -> Unit,
-    onImageClick: (ByteArray) -> Unit,
+    onImageClick: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -376,8 +374,11 @@ fun ComposeRecipeCardDetailViewHeader(
         selectedImage = uri
         selectedImage?.let {
             val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            val byteArray = bitmapImageToByteArray(bitmap)
-            onImageClick(byteArray)
+            val file = File(context.filesDir, "recipe_${System.currentTimeMillis()}.png")
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.close()
+            onImageClick(file.absolutePath)
         }
     }
 
@@ -660,27 +661,18 @@ fun ComposeRecipeCard(recipe: Recipe, onClick: () -> Unit, onLongClick: () -> Un
 
 @Composable
 private fun ComposeRecipeImage(recipe: Recipe, modifier: Modifier = Modifier) {
+    val bitmap = if (recipe.bild != null) {
+        BitmapFactory.decodeFile(recipe.bild).asImageBitmap()
+    } else {
+        ImageBitmap(1, 1)
+    }
+
     Image(
-        bitmap = byteArrayToBitmapImage(recipe.bild),
+        bitmap = bitmap,
         contentDescription = recipe.name,
         contentScale = ContentScale.Crop,
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .size(width = 200.dp, height = 150.dp)
     )
-}
-
-private fun bitmapImageToByteArray(bitmap: Bitmap): ByteArray {
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-    return stream.toByteArray()
-}
-
-private fun byteArrayToBitmapImage(image: ByteArray?): ImageBitmap {
-
-    if (image == null) {
-        return ImageBitmap(1, 1)
-    }
-
-    return BitmapFactory.decodeByteArray(image, 0, image.size).asImageBitmap()
 }

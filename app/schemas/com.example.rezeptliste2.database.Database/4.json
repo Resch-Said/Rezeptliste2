@@ -6,7 +6,7 @@
     "entities": [
       {
         "tableName": "Rezept",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`r_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dauer` INTEGER, `zubereitung` TEXT, `bild` BLOB)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`r_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dauer` INTEGER, `zubereitung` TEXT, `bild` TEXT)",
         "fields": [
           {
             "fieldPath": "r_id",
@@ -35,7 +35,7 @@
           {
             "fieldPath": "bild",
             "columnName": "bild",
-            "affinity": "BLOB",
+            "affinity": "TEXT",
             "notNull": false
           }
         ],

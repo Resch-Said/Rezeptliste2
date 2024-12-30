@@ -16,5 +16,3 @@ abstract class Database : RoomDatabase() {
     abstract fun zutatDao(): ZutatDao
     abstract fun rezeptZutatDao(): RezeptZutatDao
 }
-
-
