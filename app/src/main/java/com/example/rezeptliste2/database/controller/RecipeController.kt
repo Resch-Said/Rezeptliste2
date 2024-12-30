@@ -191,11 +191,40 @@ class RecipeController(context: Context) {
         return rezeptDao.getLastIngredientID(recipe.r_id)
     }
 
+    private fun addExampleRecipes() {
+        val exampleRecipe1 = Recipe(
+            0, "Spaghetti Bolognese", 30, "Cook spaghetti. Prepare Bolognese sauce. Mix together.", null
+        )
+        val exampleRecipe2 = Recipe(
+            0, "Pancakes", 20, "Mix ingredients. Cook on a pan. Serve with syrup.", null
+        )
 
-    private var zutatDao: ZutatDao
-    private var rezeptZutatDao: RezeptZutatDao
-    private var rezeptDao: RecipeDao
-    private var db: Database
+        val exampleIngredient1 = Ingredient(0, "Spaghetti", true, 1)
+        val exampleIngredient2 = Ingredient(0, "Ground Beef", true, 2)
+        val exampleIngredient3 = Ingredient(0, "Tomato Sauce", true, 3)
+        val exampleIngredient4 = Ingredient(0, "Flour", true, 4)
+        val exampleIngredient5 = Ingredient(0, "Eggs", true, 5)
+        val exampleIngredient6 = Ingredient(0, "Milk", true, 6)
+
+        val recipeIngredientsAmount1 = MapUtil(
+            mapOf(
+                exampleIngredient1 to "200g",
+                exampleIngredient2 to "100g",
+                exampleIngredient3 to "150ml"
+            )
+        )
+
+        val recipeIngredientsAmount2 = MapUtil(
+            mapOf(
+                exampleIngredient4 to "200g",
+                exampleIngredient5 to "2",
+                exampleIngredient6 to "300ml"
+            )
+        )
+
+        updateRecipeIngredientsDB(exampleRecipe1, recipeIngredientsAmount1)
+        updateRecipeIngredientsDB(exampleRecipe2, recipeIngredientsAmount2)
+    }
 
     init {
         this.db = Room.databaseBuilder(context, Database::class.java, "Rezeptliste_new.db")
@@ -203,7 +232,7 @@ class RecipeController(context: Context) {
         rezeptDao = db.rezeptDao()
         zutatDao = db.zutatDao()
         rezeptZutatDao = db.rezeptZutatDao()
+
+        addExampleRecipes()
     }
-
-
 }
