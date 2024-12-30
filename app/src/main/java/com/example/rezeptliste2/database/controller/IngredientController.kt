@@ -68,8 +68,8 @@ class IngredientController(context: Context) {
     private var db: Database
 
     init {
-        this.db = Room.databaseBuilder(context, Database::class.java, "Rezeptliste.db")
-            .createFromAsset("Database/Rezeptliste.db").allowMainThreadQueries().build()
+        this.db = Room.databaseBuilder(context, Database::class.java, "Rezeptliste_new.db")
+            .createFromAsset("Database/Rezeptliste_new.db").allowMainThreadQueries().build()
         rezeptDao = db.rezeptDao()
         zutatDao = db.zutatDao()
         rezeptZutatDao = db.rezeptZutatDao()
